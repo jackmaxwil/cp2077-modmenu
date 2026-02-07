@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ModMenu v0.1 input mapping.
+  NOTE: This is a MERGE SNIPPET for the game's r6/config/inputUserMappings.xml which uses:
+    <bindings> ... <mapping .../> ... </bindings>
+-->
+<bindings>
+  <mapping name="modmenu_toggle" type="Button">
+    <button id="IK_F10" />
+  </mapping>
+</bindings>
+
