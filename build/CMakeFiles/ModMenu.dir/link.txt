@@ -1,1 +1,0 @@
-/usr/bin/clang++ -O3 -DNDEBUG -arch arm64 -dynamiclib -Wl,-headerpad_max_install_names -L/opt/homebrew/lib -o libModMenu.dylib -install_name @rpath/libModMenu.dylib CMakeFiles/ModMenu.dir/src/main.cpp.o CMakeFiles/ModMenu.dir/src/modmenu_backend.cpp.o  -Wl,-undefined,dynamic_lookup
