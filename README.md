@@ -1,65 +1,50 @@
-# ModMenu (v0.1)
+# ModMenu (macOS)
 
-An in-game mod menu for Cyberpunk 2077 on macOS ARM64, built as a RED4ext plugin.
+In-game mod settings menu for Cyberpunk 2077 on macOS ARM64.
 
-## What this provides in v0.1
+**Status:** Build validated — REDscript UI, 22 native bridge functions, F10 toggle.
 
-- Native backend (`ModMenu.dylib`) with:
-  - A stable C ABI for other native plugins to register menu pages/entries
-  - REDscript bridge functions (minimal: open/close + log tail)
-- REDscript module (`Scripts/ModMenu/ModMenu.reds`) for future UI expansion
-- Input mapping stub (`scripts/r6/input/modmenu.xml`) for a toggle hotkey
+## What it does
+
+ModMenu provides an in-game overlay for configuring mod settings. Mods register toggles, sliders, and action buttons via a C ABI. The UI is built entirely in REDscript (no fragile native UI hooks), rendered on the HUD controller, and toggled with F10.
+
+## Prerequisites
+
+- RED4ext installed and functional
+- CMake 3.24+, Clang 15+
 
 ## Build
 
 ```bash
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build .
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DMODMENU_BUILD_TESTS=OFF
+make -j$(sysctl -n hw.ncpu)
 ```
 
-If CMake cannot find `RED4ext.SDK`, set:
+## Install
 
 ```bash
-cmake .. -DMODMENU_RED4EXT_SDK_DIR="/Users/jackmazac/Development/RED4ext.SDK"
+cp build/libModMenu.dylib "<game>/red4ext/plugins/ModMenu/ModMenu.dylib"
+cp -r scripts/Scripts/ "<game>/red4ext/plugins/ModMenu/Scripts/"
+cp -r scripts/r6/ "<game>/red4ext/plugins/ModMenu/r6/"
 ```
 
-## Install (layout)
+Merge `scripts/r6/input/modmenu.xml` into the game's `r6/config/inputUserMappings.xml`.
 
-Copy:
+## Key files
 
-- `ModMenu.dylib` → `<game>/red4ext/plugins/ModMenu/ModMenu.dylib`
-- `scripts/Scripts/` → `<game>/red4ext/plugins/ModMenu/Scripts/`
-- `scripts/r6/input/modmenu.xml` → **merge snippet** for the game’s input mappings (see below)
+| File | Purpose |
+|------|---------|
+| `src/main.cpp` | Plugin entry + 22 bridge function registrations |
+| `src/modmenu_backend.cpp` | Data model, persistence, plugin discovery |
+| `scripts/Scripts/ModMenu/InkHooks.reds` | Full overlay UI + input handling |
+| `scripts/r6/input/modmenu.xml` | Input binding (F10) |
+| `docs/STATUS.md` | Port status |
 
-Or use the helper installer:
+## Related projects
 
-```bash
-./tools/install_to_game.sh
-# optionally:
-./tools/install_to_game.sh "$HOME/Library/Application Support/Steam/steamapps/common/Cyberpunk 2077" ./build/libModMenu.dylib --install-input
-```
-
-## Make the hotkey work (adds the `modmenu_toggle` action)
-
-ModMenu listens for `ListenerAction.IsAction(action, n"modmenu_toggle")`. To create that action:
-
-```bash
-./tools/patch_input.sh
-rm -f "$HOME/Library/Application Support/Steam/steamapps/common/Cyberpunk 2077/r6/cache/inputUserMappings.xml" \
-      "$HOME/Library/Application Support/Steam/steamapps/common/Cyberpunk 2077/r6/cache/inputContexts.xml"
-```
-
-This also writes an **overlay** file to:
-
-- `<game>/r6/input/mods.xml`
-
-…so tools like Input Loader can re-merge inputs without relying only on base-file edits.
-
-Launch via:
-
-```bash
-cd "$HOME/Library/Application Support/Steam/steamapps/common/Cyberpunk 2077"
-./launch_red4ext.sh
-```
-
+| Project | Description |
+|---------|-------------|
+| [RED4ext](../RED4ext) | Required mod loader |
+| [RED4ext.SDK](../RED4ext.SDK) | SDK dependency |
+| [CyberMod Studio](../cybermod-studio) | GUI mod manager |
