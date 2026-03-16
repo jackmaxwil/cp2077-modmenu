@@ -50,6 +50,8 @@ install(TARGETS ModMenu
   LIBRARY DESTINATION "red4ext/plugins/ModMenu"
 )
 
+option(MODMENU_BUILD_TESTS "Build unit tests" ON)
+
 if (MODMENU_BUILD_INSTALL_SCRIPTS)
   install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/scripts/Scripts"
     DESTINATION "red4ext/plugins/ModMenu"
@@ -60,5 +62,47 @@ if (MODMENU_BUILD_INSTALL_SCRIPTS)
   install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/scripts/config"
     DESTINATION "red4ext/plugins/ModMenu"
   )
+endif()
+
+# Unit Tests with Catch2
+find_package(Catch2 3 QUIET)
+if (NOT Catch2_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG v3.5.0
+  )
+  FetchContent_MakeAvailable(Catch2)
+endif()
+
+if (MODMENU_BUILD_TESTS)
+  enable_testing()
+
+  add_executable(ModMenuTests
+    tests/CatchSetup.cpp
+    tests/mocks/MockRED4ext.cpp
+    tests/mocks/MockRed4.cpp
+    tests/mocks/MockInk.cpp
+    tests/mocks/MockInput.cpp
+    tests/mocks/MockAddressResolver.cpp
+    tests/unit/test_core.cpp
+    tests/unit/test_ink.cpp
+    tests/unit/test_input.cpp
+    tests/unit/test_addresses.cpp
+  )
+
+  target_include_directories(ModMenuTests
+    PRIVATE
+      "${CMAKE_CURRENT_LIST_DIR}/tests/mocks"
+      "${CMAKE_CURRENT_LIST_DIR}/tests"
+  )
+
+  target_link_libraries(ModMenuTests
+    PRIVATE
+      Catch2::Catch2WithMain
+  )
+
+  add_test(NAME ModMenuTests COMMAND ModMenuTests)
 endif()
 

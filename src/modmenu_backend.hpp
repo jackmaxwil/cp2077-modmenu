@@ -77,6 +77,7 @@ public:
     bool SetToggle(const char* modId, const char* pageId, const char* entryId, bool value);
     bool SetSlider(const char* modId, const char* pageId, const char* entryId, float value);
     bool PressButton(const char* modId, const char* pageId, const char* entryId);
+    void DemoToggleChanged(bool value);
 
     // Log tail
     std::string GetRed4extLogTail(std::size_t maxBytes) const;

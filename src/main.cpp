@@ -286,9 +286,9 @@ static void ModMenu_GenerateReportBundle_Fn(RED4ext::IScriptable*, RED4ext::CSta
 // Sample self-registration (v0.1)
 // ============================================================================
 
-static void ModMenu_OnDemoToggle(const ModMenuEntryPath*, bool)
+static void ModMenu_OnDemoToggle(const ModMenuEntryPath*, bool aValue)
 {
-    // no-op; placeholder for callback plumbing
+    ModMenu::Backend::Get().DemoToggleChanged(aValue);
 }
 
 static void RegisterBridgeTypes()

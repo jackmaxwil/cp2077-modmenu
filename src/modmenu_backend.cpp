@@ -475,6 +475,11 @@ bool Backend::PressButton(const char* modId, const char* pageId, const char* ent
     return true;
 }
 
+void Backend::DemoToggleChanged(bool value)
+{
+    LogInfo(std::string("Demo toggle changed: ") + (value ? "on" : "off"));
+}
+
 std::filesystem::path Backend::GetPluginDir() const
 {
 #if defined(__APPLE__)
