@@ -4,11 +4,17 @@ ModMenu is an in-game settings menu for Cyberpunk 2077 mods on macOS. It runs as
 
 ## Install
 
-ModMenu is part of the RED4ext macOS release. Follow [RED4ext's install guide](https://github.com/jackmaxwil/RED4ext-macos/blob/main/docs/INSTALL_MACOS.md):
+ModMenu is part of the RED4ext macOS release (Cyberpunk 2077 2.3.1, Steam, Apple silicon). Quit the game, open Terminal
+and run:
 
-1. Unzip the release over the game folder (`~/Library/Application Support/Steam/steamapps/common/Cyberpunk 2077`).
-2. Run the one-time setup, `red4ext/macos/scripts/install_macos.sh`, from the game folder.
-3. Start the game with `launch_red4ext.sh` from the game folder. The Steam Play button starts the game without mods.
+```bash
+curl -fsSL https://raw.githubusercontent.com/jackmaxwil/RED4ext-macos/main/install.sh | bash
+```
+
+That installs RED4ext with TweakXL, ArchiveXL and ModMenu. Update, uninstall, `doctor` and `play` are in
+[RED4ext's README](https://github.com/jackmaxwil/RED4ext-macos#install); the manual install is in
+[INSTALL_MACOS.md](https://github.com/jackmaxwil/RED4ext-macos/blob/main/docs/INSTALL_MACOS.md). Start the game with
+`launch_red4ext.sh` from the game folder; the Steam Play button starts it without mods.
 
 ModMenu ends up in `red4ext/plugins/ModMenu/`, and its key binding in `r6/input/modmenu.xml`.
 
