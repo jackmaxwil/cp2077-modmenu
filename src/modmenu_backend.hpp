@@ -56,7 +56,7 @@ class Backend
 public:
     static Backend& Get();
 
-    void SetSdk(RED4ext::PluginHandle handle, const RED4ext::Sdk* sdk);
+    void SetSdk(RED4ext::v1::PluginHandle handle, const RED4ext::v1::Sdk* sdk);
 
     const ModMenuApi* GetApi() const;
 
@@ -126,8 +126,8 @@ private:
 private:
     mutable std::mutex m_mutex;
 
-    RED4ext::PluginHandle m_handle{};
-    const RED4ext::Sdk* m_sdk{nullptr};
+    RED4ext::v1::PluginHandle m_handle{};
+    const RED4ext::v1::Sdk* m_sdk{nullptr};
 
     bool m_open{false};
 

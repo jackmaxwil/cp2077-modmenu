@@ -199,7 +199,7 @@ Backend::Backend()
     m_api.RegisterButton = &Backend::Api_RegisterButton;
 }
 
-void Backend::SetSdk(RED4ext::PluginHandle handle, const RED4ext::Sdk* sdk)
+void Backend::SetSdk(RED4ext::v1::PluginHandle handle, const RED4ext::v1::Sdk* sdk)
 {
     std::scoped_lock _(m_mutex);
     m_handle = handle;
