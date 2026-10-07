@@ -833,7 +833,6 @@ protected cb func OnDetach() -> Bool {
 
 public class ModMenuInputListener {
   private let player: wref<PlayerPuppet>;
-  private let loggedActions: Int32;
 
   public func SetPlayer(player: ref<PlayerPuppet>) -> Void {
     this.player = player;
@@ -846,11 +845,6 @@ public class ModMenuInputListener {
 
     let actionName = ListenerAction.GetName(action);
     let actionType = ListenerAction.GetType(action);
-    if this.loggedActions < 200 && Equals(actionType, gameinputActionType.BUTTON_RELEASED) {
-      this.loggedActions += 1;
-      ModMenu_Log("input: " + NameToString(actionName) + " released");
-    }
-
     let closeKey = this.player.modmenuOpen && (Equals(actionName, n"cancel") || Equals(actionName, n"close_popup"));
     if (Equals(actionName, n"modmenu_toggle") || closeKey) && Equals(actionType, gameinputActionType.BUTTON_RELEASED) {
       if IsDefined(this.player.modmenuOverlay) {
