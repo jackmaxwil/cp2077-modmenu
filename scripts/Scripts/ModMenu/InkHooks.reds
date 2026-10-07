@@ -43,14 +43,14 @@ private let modmenuCurrentPageId: String;
 @addField(inkGameController)
 private let modmenuVisible: Bool;
 
-@wrapMethod(inkGameController)
+// The root HUD controller has no script-level OnInitialize to wrap; the health bar controller is created with
+// the in-game HUD and owns a compound root to attach the overlay to.
+@wrapMethod(healthbarWidgetGameController)
 protected cb func OnInitialize() -> Bool {
-  wrappedMethod();
-  
-  if this.IsA(n"gameuiRootHudGameController") {
-    this.ModMenu_CreateStatusLabel();
-    this.ModMenu_CreateFullUI();
-  }
+  let result = wrappedMethod();
+  this.ModMenu_CreateStatusLabel();
+  this.ModMenu_CreateFullUI();
+  return result;
 }
 
 // =============================================================================
@@ -73,7 +73,7 @@ private func ModMenu_CreateStatusLabel() -> Void {
   label.SetMargin(new inkMargin(50.0, 50.0, 0.0, 0.0));
   label.SetAnchor(inkEAnchor.TopLeft);
   label.SetOpacity(0.6);
-  root.AddChild(label);
+  root.AddChildWidget(label);
   this.modmenuStatusLabel = label;
 }
 
@@ -94,7 +94,7 @@ private func ModMenu_CreateFullUI() -> Void {
   canvas.SetSize(1920.0, 1080.0);
   canvas.SetAnchor(inkEAnchor.Fill);
   canvas.SetVisible(false);
-  root.AddChild(canvas);
+  root.AddChildWidget(canvas);
   this.modmenuRootCanvas = canvas;
 
   // Semi-transparent background
@@ -104,14 +104,14 @@ private func ModMenu_CreateFullUI() -> Void {
   bg.SetAnchor(inkEAnchor.Fill);
   bg.SetTintColor(new Color(0, 0, 0, 180));
   bg.SetOpacity(0.8);
-  canvas.AddChild(bg);
+  canvas.AddChildWidget(bg);
 
   // Main panel (centered 1200x700)
   let mainPanel = new inkHorizontalPanel();
   mainPanel.SetName(n"ModMenuMainPanel");
   mainPanel.SetSize(1200.0, 700.0);
   mainPanel.SetAnchor(inkEAnchor.Centered);
-  canvas.AddChild(mainPanel);
+  canvas.AddChildWidget(mainPanel);
   this.modmenuMainPanel = mainPanel;
 
   // Panel background
@@ -119,7 +119,7 @@ private func ModMenu_CreateFullUI() -> Void {
   panelBg.SetSize(1200.0, 700.0);
   panelBg.SetTintColor(new Color(20, 20, 20, 255));
   panelBg.SetOpacity(0.95);
-  mainPanel.AddChild(panelBg);
+  mainPanel.AddChildWidget(panelBg);
 
   this.ModMenu_CreateHeader();
   this.ModMenu_CreateSidebar();
@@ -134,7 +134,7 @@ private func ModMenu_CreateHeader() -> Void {
   header.SetName(n"ModMenuHeader");
   header.SetSize(1200.0, 60.0);
   header.SetMargin(new inkMargin(0.0, 0.0, 0.0, 10.0));
-  this.modmenuMainPanel.AddChild(header);
+  this.modmenuMainPanel.AddChildWidget(header);
 
   let title = new inkText();
   title.SetName(n"ModMenuTitle");
@@ -143,7 +143,7 @@ private func ModMenu_CreateHeader() -> Void {
   title.SetFontSize(32);
   title.SetTintColor(new Color(255, 255, 255, 255));
   title.SetMargin(new inkMargin(20.0, 15.0, 0.0, 0.0));
-  header.AddChild(title);
+  header.AddChildWidget(title);
   this.modmenuTitleText = title;
 }
 
@@ -153,13 +153,13 @@ private func ModMenu_CreateSidebar() -> Void {
   sidebar.SetName(n"ModMenuSidebar");
   sidebar.SetSize(300.0, 620.0);
   sidebar.SetMargin(new inkMargin(10.0, 70.0, 10.0, 10.0));
-  this.modmenuMainPanel.AddChild(sidebar);
+  this.modmenuMainPanel.AddChildWidget(sidebar);
 
   let sidebarBg = new inkRectangle();
   sidebarBg.SetSize(300.0, 620.0);
   sidebarBg.SetTintColor(new Color(30, 30, 30, 255));
   sidebarBg.SetOpacity(0.9);
-  sidebar.AddChild(sidebarBg);
+  sidebar.AddChildWidget(sidebarBg);
 
   let label = new inkText();
   label.SetText("Installed Mods");
@@ -167,18 +167,18 @@ private func ModMenu_CreateSidebar() -> Void {
   label.SetFontSize(20);
   label.SetTintColor(new Color(200, 200, 200, 255));
   label.SetMargin(new inkMargin(15.0, 15.0, 0.0, 10.0));
-  sidebar.AddChild(label);
+  sidebar.AddChildWidget(label);
 
   let scroll = new inkScrollArea();
   scroll.SetName(n"ModMenuModListScroll");
   scroll.SetSize(280.0, 560.0);
   scroll.SetMargin(new inkMargin(10.0, 50.0, 10.0, 10.0));
-  sidebar.AddChild(scroll);
+  sidebar.AddChildWidget(scroll);
 
   let content = new inkVerticalPanel();
   content.SetName(n"ModMenuModListContent");
   content.SetSize(260.0, 100.0);
-  scroll.SetContent(content);
+  scroll.AddChildWidget(content);
   this.modmenuModListContent = content;
   this.modmenuSidebar = sidebar;
 }
@@ -189,32 +189,32 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   panel.SetName(n"ModMenuSettingsPanel");
   panel.SetSize(860.0, 620.0);
   panel.SetMargin(new inkMargin(320.0, 70.0, 10.0, 10.0));
-  this.modmenuMainPanel.AddChild(panel);
+  this.modmenuMainPanel.AddChildWidget(panel);
 
   let settingsBg = new inkRectangle();
   settingsBg.SetSize(860.0, 620.0);
   settingsBg.SetTintColor(new Color(40, 40, 40, 255));
   settingsBg.SetOpacity(0.9);
-  panel.AddChild(settingsBg);
+  panel.AddChildWidget(settingsBg);
 
   // Page tabs
   let tabs = new inkHorizontalPanel();
   tabs.SetName(n"ModMenuPageTabs");
   tabs.SetSize(840.0, 40.0);
   tabs.SetMargin(new inkMargin(10.0, 10.0, 10.0, 0.0));
-  panel.AddChild(tabs);
+  panel.AddChildWidget(tabs);
   this.modmenuPageSelector = tabs;
 
   // Settings scroll
   let scroll = new inkScrollArea();
   scroll.SetSize(840.0, 560.0);
   scroll.SetMargin(new inkMargin(10.0, 60.0, 10.0, 10.0));
-  panel.AddChild(scroll);
+  panel.AddChildWidget(scroll);
 
   let content = new inkVerticalPanel();
   content.SetName(n"ModMenuSettingsContent");
   content.SetSize(820.0, 100.0);
-  scroll.SetContent(content);
+  scroll.AddChildWidget(content);
   this.modmenuSettingsContent = content;
 
   // Default placeholder
@@ -224,7 +224,7 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   placeholder.SetFontSize(18);
   placeholder.SetTintColor(new Color(150, 150, 150, 255));
   placeholder.SetMargin(new inkMargin(20.0, 20.0, 0.0, 0.0));
-  content.AddChild(placeholder);
+  content.AddChildWidget(placeholder);
 }
 
 // =============================================================================
@@ -275,7 +275,7 @@ private func ModMenu_RefreshModList() -> Void {
     noMods.SetFontSize(16);
     noMods.SetTintColor(new Color(120, 120, 120, 255));
     noMods.SetMargin(new inkMargin(15.0, 10.0, 0.0, 0.0));
-    this.modmenuModListContent.AddChild(noMods);
+    this.modmenuModListContent.AddChildWidget(noMods);
     return;
   }
 
@@ -297,7 +297,7 @@ private func ModMenu_RefreshModList() -> Void {
     btn.SetMargin(new inkMargin(10.0, 5.0, 10.0, 5.0));
     btn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_ModSelected");
 
-    this.modmenuModListContent.AddChild(btn);
+    this.modmenuModListContent.AddChildWidget(btn);
     ArrayPush(this.modmenuModButtons, btn);
 
     idx += 1;
@@ -379,7 +379,7 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     noSettings.SetFontSize(16);
     noSettings.SetTintColor(new Color(150, 150, 150, 255));
     noSettings.SetMargin(new inkMargin(20.0, 20.0, 0.0, 0.0));
-    this.modmenuSettingsContent.AddChild(noSettings);
+    this.modmenuSettingsContent.AddChildWidget(noSettings);
     return;
   }
 
@@ -401,7 +401,7 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     tab.SetSize(120.0, 30.0);
     tab.SetMargin(new inkMargin(5.0, 5.0, 5.0, 5.0));
     tab.RegisterToCallback(n"OnRelease", this, n"OnModMenu_PageSelected");
-    this.modmenuPageSelector.AddChild(tab);
+    this.modmenuPageSelector.AddChildWidget(tab);
 
     pi += 1;
   }
@@ -484,7 +484,7 @@ private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String
   label.SetFontSize(16);
   label.SetTintColor(new Color(220, 220, 220, 255));
   label.SetSize(600.0, 30.0);
-  row.AddChild(label);
+  row.AddChildWidget(label);
 
   let value = ModMenu_GetToggleValue(modId, pageId, entryId);
 
@@ -496,9 +496,9 @@ private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String
   toggle.SetSize(80.0, 30.0);
   toggle.SetTintColor(value ? new Color(0, 200, 80, 255) : new Color(200, 60, 60, 255));
   toggle.RegisterToCallback(n"OnRelease", this, n"OnModMenu_TogglePressed");
-  row.AddChild(toggle);
+  row.AddChildWidget(toggle);
 
-  this.modmenuSettingsContent.AddChild(row);
+  this.modmenuSettingsContent.AddChildWidget(row);
 }
 
 @addMethod(inkGameController)
@@ -534,7 +534,7 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(16);
   label.SetTintColor(new Color(220, 220, 220, 255));
-  labelRow.AddChild(label);
+  labelRow.AddChildWidget(label);
 
   let value = ModMenu_GetSliderValue(modId, pageId, entryId);
   let valText = new inkText();
@@ -544,8 +544,8 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   valText.SetFontSize(14);
   valText.SetTintColor(new Color(180, 180, 180, 255));
   valText.SetMargin(new inkMargin(20.0, 0.0, 0.0, 0.0));
-  labelRow.AddChild(valText);
-  container.AddChild(labelRow);
+  labelRow.AddChildWidget(valText);
+  container.AddChildWidget(labelRow);
 
   let ctrlRow = new inkHorizontalPanel();
   ctrlRow.SetSize(800.0, 30.0);
@@ -559,14 +559,14 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   decBtn.SetTintColor(new Color(200, 200, 200, 255));
   decBtn.SetSize(40.0, 30.0);
   decBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_SliderDecPressed");
-  ctrlRow.AddChild(decBtn);
+  ctrlRow.AddChildWidget(decBtn);
 
   let bar = new inkRectangle();
   bar.SetName(StringToName("sliderbar_" + entryId));
   bar.SetSize(300.0, 20.0);
   bar.SetMargin(new inkMargin(10.0, 5.0, 10.0, 0.0));
   bar.SetTintColor(new Color(0, 100, 200, 255));
-  ctrlRow.AddChild(bar);
+  ctrlRow.AddChildWidget(bar);
 
   let incBtn = new inkText();
   incBtn.SetName(StringToName("sliderinc_" + entryId));
@@ -576,10 +576,10 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   incBtn.SetTintColor(new Color(200, 200, 200, 255));
   incBtn.SetSize(40.0, 30.0);
   incBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_SliderIncPressed");
-  ctrlRow.AddChild(incBtn);
+  ctrlRow.AddChildWidget(incBtn);
 
-  container.AddChild(ctrlRow);
-  this.modmenuSettingsContent.AddChild(container);
+  container.AddChildWidget(ctrlRow);
+  this.modmenuSettingsContent.AddChildWidget(container);
 }
 
 @addMethod(inkGameController)
@@ -625,7 +625,7 @@ private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: 
   label.SetFontSize(16);
   label.SetTintColor(new Color(220, 220, 220, 255));
   label.SetSize(600.0, 30.0);
-  row.AddChild(label);
+  row.AddChildWidget(label);
 
   let actionBtn = new inkText();
   actionBtn.SetName(StringToName("action_" + entryId));
@@ -635,9 +635,9 @@ private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: 
   actionBtn.SetTintColor(new Color(0, 160, 255, 255));
   actionBtn.SetSize(120.0, 30.0);
   actionBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_ActionPressed");
-  row.AddChild(actionBtn);
+  row.AddChildWidget(actionBtn);
 
-  this.modmenuSettingsContent.AddChild(row);
+  this.modmenuSettingsContent.AddChildWidget(row);
 }
 
 @addMethod(inkGameController)
@@ -658,7 +658,7 @@ private func ModMenu_CreateLabel(title: String) -> Void {
   label.SetFontSize(14);
   label.SetTintColor(new Color(180, 180, 180, 255));
   label.SetMargin(new inkMargin(15.0, 10.0, 0.0, 5.0));
-  this.modmenuSettingsContent.AddChild(label);
+  this.modmenuSettingsContent.AddChildWidget(label);
 }
 
 // =============================================================================

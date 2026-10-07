@@ -1,6 +1,5 @@
 module ModMenu
 
-// v0.1: Script-only overlay hook (see `InkHooks.reds`).
-// The native backend is present, but RTTI/native registration will be re-enabled
-// once CRTTISystem address resolution is confirmed correct on macOS.
+// Overlay hook in `InkHooks.reds`; native backend functions are declared in `Natives.reds` and registered by the
+// plugin from the RTTI post-register callback.
 

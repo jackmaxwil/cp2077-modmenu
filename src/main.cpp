@@ -504,6 +504,14 @@ RED4EXT_C_EXPORT bool RED4EXT_CALL Main(RED4ext::PluginHandle aHandle, RED4ext::
     {
         ModMenu::Backend::Get().SetSdk(aHandle, aSdk);
 
+        // Script natives (declared in scripts/Scripts/ModMenu/Natives.reds) must be registered while the game builds
+        // its RTTI, i.e. from the post-register callback.
+        if (auto rtti = RED4ext::CRTTISystem::Get())
+        {
+            rtti->AddRegisterCallback(RegisterBridgeTypes);
+            rtti->AddPostRegisterCallback(RegisterBridgeFunctions);
+        }
+
         // Register ModMenu itself so there is always at least one page visible.
         {
             const auto* api = ModMenu_GetApi();

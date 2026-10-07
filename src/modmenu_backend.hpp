@@ -129,7 +129,7 @@ private:
     RED4ext::PluginHandle m_handle{};
     const RED4ext::Sdk* m_sdk{nullptr};
 
-    bool m_open{true};
+    bool m_open{false};
 
     std::vector<Mod> m_mods;
 
