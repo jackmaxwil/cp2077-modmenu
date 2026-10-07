@@ -1,6 +1,5 @@
 module ModMenu
 
-import ModMenu.Events.*
 
 // =============================================================================
 // ModMenu overlay — hooks the HUD controller to inject the full settings UI.
@@ -43,13 +42,25 @@ private let modmenuCurrentPageId: String;
 @addField(inkGameController)
 private let modmenuVisible: Bool;
 
-// The root HUD controller has no script-level OnInitialize to wrap; the health bar controller is created with
-// the in-game HUD and owns a compound root to attach the overlay to.
-@wrapMethod(healthbarWidgetGameController)
+// The overlay lives on the popups manager: its root covers the whole screen and it exists for the whole time the
+// player is in the world. (The health bar's root, used before, is small and fades out at full health.)
+@wrapMethod(PopupsManager)
 protected cb func OnInitialize() -> Bool {
   let result = wrappedMethod();
+  ModMenu_Log("hud: PopupsManager.OnInitialize, root defined: " + ToString(IsDefined(this.GetRootCompoundWidget())));
   this.ModMenu_CreateStatusLabel();
   this.ModMenu_CreateFullUI();
+  return result;
+}
+
+@wrapMethod(PopupsManager)
+protected cb func OnPlayerAttach(playerPuppet: ref<GameObject>) -> Bool {
+  let result = wrappedMethod(playerPuppet);
+  let player = playerPuppet as PlayerPuppet;
+  if IsDefined(player) {
+    player.modmenuOverlay = this;
+    ModMenu_Log("hud: overlay attached to the player");
+  }
   return result;
 }
 
@@ -75,6 +86,7 @@ private func ModMenu_CreateStatusLabel() -> Void {
   label.SetOpacity(0.6);
   root.AddChildWidget(label);
   this.modmenuStatusLabel = label;
+  ModMenu_Log("hud: status label added");
 }
 
 // =============================================================================
@@ -231,16 +243,19 @@ private func ModMenu_CreateSettingsPanel() -> Void {
 // Toggle event — show/hide the full UI, refresh mod list on open
 // =============================================================================
 
+// Called directly by the input listener on the one controller that owns the overlay (no broadcast event: an
+// event handler added to inkGameController ran in every UI controller in the game on each key press).
 @addMethod(inkGameController)
-protected cb func OnModMenuToggleEvent(evt: ref<ModMenuToggleEvent>) -> Bool {
-  this.modmenuVisible = evt.open;
-  ModMenu_SetOpen(evt.open);
+public func ModMenu_Toggle(open: Bool) -> Void {
+  this.modmenuVisible = open;
+  ModMenu_SetOpen(open);
+  ModMenu_Log("hud: toggle " + ToString(open) + ", overlay defined: " + ToString(IsDefined(this.modmenuRootCanvas)));
 
   if IsDefined(this.modmenuRootCanvas) {
-    this.modmenuRootCanvas.SetVisible(evt.open);
+    this.modmenuRootCanvas.SetVisible(open);
   }
 
-  if evt.open {
+  if open {
     this.ModMenu_RefreshModList();
     if IsDefined(this.modmenuStatusLabel) {
       this.modmenuStatusLabel.SetVisible(false);
@@ -250,7 +265,6 @@ protected cb func OnModMenuToggleEvent(evt: ref<ModMenuToggleEvent>) -> Bool {
       this.modmenuStatusLabel.SetVisible(true);
     }
   }
-  return false;
 }
 
 // =============================================================================
@@ -671,6 +685,9 @@ private let modmenuListener: ref<ModMenuInputListener>;
 @addField(PlayerPuppet)
 public let modmenuOpen: Bool;
 
+@addField(PlayerPuppet)
+public let modmenuOverlay: wref<inkGameController>;
+
 @wrapMethod(PlayerPuppet)
 protected cb func OnGameAttached() -> Bool {
   wrappedMethod();
@@ -679,6 +696,7 @@ protected cb func OnGameAttached() -> Bool {
     this.modmenuListener = new ModMenuInputListener();
     this.modmenuListener.SetPlayer(this);
     this.RegisterInputListener(this.modmenuListener);
+    ModMenu_Log("input: listener registered on PlayerPuppet");
   }
 }
 
@@ -694,6 +712,7 @@ protected cb func OnDetach() -> Bool {
 
 public class ModMenuInputListener {
   private let player: wref<PlayerPuppet>;
+  private let loggedActions: Int32;
 
   public func SetPlayer(player: ref<PlayerPuppet>) -> Void {
     this.player = player;
@@ -706,13 +725,18 @@ public class ModMenuInputListener {
 
     let actionName = ListenerAction.GetName(action);
     let actionType = ListenerAction.GetType(action);
+    if this.loggedActions < 200 && Equals(actionType, gameinputActionType.BUTTON_RELEASED) {
+      this.loggedActions += 1;
+      ModMenu_Log("input: " + NameToString(actionName) + " released");
+    }
 
     if Equals(actionName, n"modmenu_toggle") && Equals(actionType, gameinputActionType.BUTTON_RELEASED) {
       this.player.modmenuOpen = !this.player.modmenuOpen;
-      
-      let evt = new ModMenuToggleEvent();
-      evt.open = this.player.modmenuOpen;
-      GameInstance.GetUISystem(this.player.GetGame()).QueueEvent(evt);
+      if IsDefined(this.player.modmenuOverlay) {
+        this.player.modmenuOverlay.ModMenu_Toggle(this.player.modmenuOpen);
+      } else {
+        ModMenu_Log("input: toggle pressed but no overlay is attached");
+      }
       
       return true;
     }

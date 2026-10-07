@@ -2,6 +2,8 @@
 
 #include <RED4ext/RED4ext.hpp>
 
+#include <cstdio>
+
 #include <RED4ext/CName.hpp>
 #include <RED4ext/CString.hpp>
 #include <RED4ext/RTTISystem.hpp>
@@ -29,6 +31,20 @@ static void ModMenu_SetOpen_Fn(RED4ext::IScriptable*, RED4ext::CStackFrame* aFra
     ModMenu::Backend::Get().SetOpen(open);
     if (aOut)
         *aOut = true;
+}
+
+// Script diagnostics: one line per call, appended to red4ext/logs/modmenu.log (the game runs with the game folder as
+// its working directory).
+static void ModMenu_Log_Fn(RED4ext::IScriptable*, RED4ext::CStackFrame* aFrame, void*, std::int64_t)
+{
+    RED4ext::CString message;
+    RED4ext::GetParameter(aFrame, &message);
+    aFrame->code++; // ParamEnd
+    if (std::FILE* file = std::fopen("red4ext/logs/modmenu.log", "a"))
+    {
+        std::fprintf(file, "%s\n", message.c_str());
+        std::fclose(file);
+    }
 }
 
 static void ModMenu_GetRed4extLogTail_Fn(RED4ext::IScriptable*, RED4ext::CStackFrame* aFrame, RED4ext::CString* aOut,
@@ -305,6 +321,12 @@ static void RegisterBridgeFunctions()
     RED4ext::CBaseFunction::Flags flags = {.isNative = true, .isStatic = true};
 
     // State
+    {
+        auto func = RED4ext::CGlobalFunction::Create("ModMenu_Log", "ModMenu_Log", &ModMenu_Log_Fn);
+        func->flags = flags;
+        func->AddParam("String", "message");
+        rtti->RegisterFunction(func);
+    }
     {
         auto func = RED4ext::CGlobalFunction::Create("ModMenu_IsOpen", "ModMenu_IsOpen", &ModMenu_IsOpen_Fn);
         func->flags = flags;

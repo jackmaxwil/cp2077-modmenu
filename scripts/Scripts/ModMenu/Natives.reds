@@ -1,6 +1,7 @@
 // Generated from src/main.cpp RegisterBridgeFunctions(); keep in sync. Global (no module): the natives are
 // registered under their bare names, and a module-scoped declaration would not bind.
 
+native func ModMenu_Log(message: String) -> Void;
 native func ModMenu_IsOpen() -> Bool;
 native func ModMenu_SetOpen(open: Bool) -> Bool;
 native func ModMenu_GetRed4extLogTail(maxBytes: Int32) -> String;
