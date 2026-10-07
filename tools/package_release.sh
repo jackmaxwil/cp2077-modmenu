@@ -20,8 +20,8 @@ fi
 
 cp -f "$BUILD_DYLIB" "$STAGE_DIR/red4ext/plugins/ModMenu/ModMenu.dylib"
 cp -R "$ROOT_DIR/scripts/Scripts" "$STAGE_DIR/red4ext/plugins/ModMenu/Scripts"
-cp -R "$ROOT_DIR/scripts/config" "$STAGE_DIR/red4ext/plugins/ModMenu/config"
-cp -R "$ROOT_DIR/scripts/r6" "$STAGE_DIR/red4ext/plugins/ModMenu/r6"
+# Input bindings go to the game's r6/input, where inputloader.pl reads them.
+cp -R "$ROOT_DIR/scripts/r6" "$STAGE_DIR/r6"
 cp -f "$ROOT_DIR/README.md" "$STAGE_DIR/red4ext/plugins/ModMenu/README.md"
 
 mkdir -p "$OUT_DIR"

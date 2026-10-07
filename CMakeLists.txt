@@ -54,10 +54,8 @@ if (MODMENU_BUILD_INSTALL_SCRIPTS)
   install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/scripts/Scripts"
     DESTINATION "red4ext/plugins/ModMenu"
   )
+  # Input bindings go to the game's r6/input, where inputloader.pl reads them.
   install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/scripts/r6"
-    DESTINATION "red4ext/plugins/ModMenu"
-  )
-  install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/scripts/config"
-    DESTINATION "red4ext/plugins/ModMenu"
+    DESTINATION "."
   )
 endif()
