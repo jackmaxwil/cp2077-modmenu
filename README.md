@@ -38,7 +38,7 @@ Merge `scripts/r6/input/modmenu.xml` into the game's `r6/config/inputUserMapping
 | `src/main.cpp` | Plugin entry + 22 bridge function registrations |
 | `src/modmenu_backend.cpp` | Data model, persistence, plugin discovery |
 | `scripts/Scripts/ModMenu/InkHooks.reds` | Full overlay UI + input handling |
-| `scripts/r6/input/modmenu.xml` | Input binding (F10) |
+| `scripts/r6/input/modmenu.xml` | Input binding (` or F10) |
 | `docs/STATUS.md` | Port status |
 
 ## Related projects

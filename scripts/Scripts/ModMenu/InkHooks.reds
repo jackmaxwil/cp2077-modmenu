@@ -66,7 +66,7 @@ private func ModMenu_CreateStatusLabel() -> Void {
 
   let label = new inkText();
   label.SetName(n"ModMenuStatusLabel");
-  label.SetText("ModMenu Active - F10");
+  label.SetText("ModMenu Active - press ` (or F10)");
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(18);
   label.SetTintColor(new Color(0, 200, 80, 200));
@@ -78,7 +78,7 @@ private func ModMenu_CreateStatusLabel() -> Void {
 }
 
 // =============================================================================
-// Full UI overlay (hidden until F10)
+// Full UI overlay (hidden until ` or F10)
 // =============================================================================
 
 @addMethod(inkGameController)
