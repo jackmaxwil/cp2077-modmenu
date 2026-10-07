@@ -1,0 +1,3 @@
+[submodule "vendor/RED4ext.SDK"]
+	path = vendor/RED4ext.SDK
+	url = https://github.com/jackmaxwil/RED4ext.SDK-macos.git

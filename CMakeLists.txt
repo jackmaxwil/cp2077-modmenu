@@ -8,17 +8,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(MODMENU_BUILD_INSTALL_SCRIPTS "Include scripts/ in install" ON)
 
-# Prefer a sibling checkout of RED4ext.SDK, fallback to vendor/RED4ext.SDK if present.
-set(MODMENU_RED4EXT_SDK_DIR_DEFAULT "${CMAKE_CURRENT_LIST_DIR}/../RED4ext.SDK")
-if (EXISTS "${MODMENU_RED4EXT_SDK_DIR_DEFAULT}/include/RED4ext/RED4ext.hpp")
-  set(MODMENU_RED4EXT_SDK_DIR "${MODMENU_RED4EXT_SDK_DIR_DEFAULT}" CACHE PATH "Path to RED4ext.SDK repo root")
-else()
-  set(MODMENU_RED4EXT_SDK_DIR "${CMAKE_CURRENT_LIST_DIR}/vendor/RED4ext.SDK" CACHE PATH "Path to RED4ext.SDK repo root")
+# RED4ext.SDK headers. RED4EXT_SDK_DIR is the SDK repository root; it defaults to the pinned vendor/RED4ext.SDK
+# submodule. RED4ext's tools/cp-dev and scripts/create_release.sh pass the workspace checkout explicitly.
+set(RED4EXT_SDK_DIR "${CMAKE_CURRENT_LIST_DIR}/vendor/RED4ext.SDK" CACHE PATH "RED4ext.SDK repository root")
+if (NOT EXISTS "${RED4EXT_SDK_DIR}/include/RED4ext/RED4ext.hpp")
+  message(FATAL_ERROR "RED4ext.SDK not found at ${RED4EXT_SDK_DIR}. "
+                      "Run `git submodule update --init --recursive`, or pass -DRED4EXT_SDK_DIR=<path>.")
 endif()
-
-if (NOT EXISTS "${MODMENU_RED4EXT_SDK_DIR}/include/RED4ext/RED4ext.hpp")
-  message(FATAL_ERROR "RED4ext.SDK not found. Set -DMODMENU_RED4EXT_SDK_DIR=/path/to/RED4ext.SDK")
-endif()
+message(STATUS "RED4ext.SDK: ${RED4EXT_SDK_DIR}")
 
 add_library(ModMenu SHARED
   src/main.cpp
@@ -28,7 +25,7 @@ add_library(ModMenu SHARED
 
 target_include_directories(ModMenu
   PRIVATE
-    "${MODMENU_RED4EXT_SDK_DIR}/include"
+    "${RED4EXT_SDK_DIR}/include"
     "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
