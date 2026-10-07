@@ -75,4 +75,4 @@ To check that every game address ModMenu uses is verified: `python3 vendor/RED4e
 
 ## Credits and license
 
-ModMenu is written for the macOS port of RED4ext. There is no license file in this repository yet.
+ModMenu is written for the macOS port of RED4ext. MIT license, see [LICENSE](LICENSE).
