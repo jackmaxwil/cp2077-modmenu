@@ -69,8 +69,8 @@ private func ModMenu_CreateStatusLabel() -> Void {
   label.SetText("ModMenu Active - press ` (or F10)");
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(18);
-  label.SetTintColor(new Color(0, 200, 80, 200));
-  label.SetMargin(new inkMargin(50.0, 50.0, 0.0, 0.0));
+  label.SetTintColor(Color(0, 200, 80, 200));
+  label.SetMargin(inkMargin(50.0, 50.0, 0.0, 0.0));
   label.SetAnchor(inkEAnchor.TopLeft);
   label.SetOpacity(0.6);
   root.AddChildWidget(label);
@@ -102,7 +102,7 @@ private func ModMenu_CreateFullUI() -> Void {
   bg.SetName(n"ModMenuBg");
   bg.SetSize(1920.0, 1080.0);
   bg.SetAnchor(inkEAnchor.Fill);
-  bg.SetTintColor(new Color(0, 0, 0, 180));
+  bg.SetTintColor(Color(0, 0, 0, 180));
   bg.SetOpacity(0.8);
   canvas.AddChildWidget(bg);
 
@@ -117,7 +117,7 @@ private func ModMenu_CreateFullUI() -> Void {
   // Panel background
   let panelBg = new inkRectangle();
   panelBg.SetSize(1200.0, 700.0);
-  panelBg.SetTintColor(new Color(20, 20, 20, 255));
+  panelBg.SetTintColor(Color(20, 20, 20, 255));
   panelBg.SetOpacity(0.95);
   mainPanel.AddChildWidget(panelBg);
 
@@ -133,7 +133,7 @@ private func ModMenu_CreateHeader() -> Void {
   let header = new inkHorizontalPanel();
   header.SetName(n"ModMenuHeader");
   header.SetSize(1200.0, 60.0);
-  header.SetMargin(new inkMargin(0.0, 0.0, 0.0, 10.0));
+  header.SetMargin(inkMargin(0.0, 0.0, 0.0, 10.0));
   this.modmenuMainPanel.AddChildWidget(header);
 
   let title = new inkText();
@@ -141,8 +141,8 @@ private func ModMenu_CreateHeader() -> Void {
   title.SetText("ModMenu");
   title.SetFontFamily("Rajdhani");
   title.SetFontSize(32);
-  title.SetTintColor(new Color(255, 255, 255, 255));
-  title.SetMargin(new inkMargin(20.0, 15.0, 0.0, 0.0));
+  title.SetTintColor(Color(255, 255, 255, 255));
+  title.SetMargin(inkMargin(20.0, 15.0, 0.0, 0.0));
   header.AddChildWidget(title);
   this.modmenuTitleText = title;
 }
@@ -152,12 +152,12 @@ private func ModMenu_CreateSidebar() -> Void {
   let sidebar = new inkVerticalPanel();
   sidebar.SetName(n"ModMenuSidebar");
   sidebar.SetSize(300.0, 620.0);
-  sidebar.SetMargin(new inkMargin(10.0, 70.0, 10.0, 10.0));
+  sidebar.SetMargin(inkMargin(10.0, 70.0, 10.0, 10.0));
   this.modmenuMainPanel.AddChildWidget(sidebar);
 
   let sidebarBg = new inkRectangle();
   sidebarBg.SetSize(300.0, 620.0);
-  sidebarBg.SetTintColor(new Color(30, 30, 30, 255));
+  sidebarBg.SetTintColor(Color(30, 30, 30, 255));
   sidebarBg.SetOpacity(0.9);
   sidebar.AddChildWidget(sidebarBg);
 
@@ -165,14 +165,14 @@ private func ModMenu_CreateSidebar() -> Void {
   label.SetText("Installed Mods");
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(20);
-  label.SetTintColor(new Color(200, 200, 200, 255));
-  label.SetMargin(new inkMargin(15.0, 15.0, 0.0, 10.0));
+  label.SetTintColor(Color(200, 200, 200, 255));
+  label.SetMargin(inkMargin(15.0, 15.0, 0.0, 10.0));
   sidebar.AddChildWidget(label);
 
   let scroll = new inkScrollArea();
   scroll.SetName(n"ModMenuModListScroll");
   scroll.SetSize(280.0, 560.0);
-  scroll.SetMargin(new inkMargin(10.0, 50.0, 10.0, 10.0));
+  scroll.SetMargin(inkMargin(10.0, 50.0, 10.0, 10.0));
   sidebar.AddChildWidget(scroll);
 
   let content = new inkVerticalPanel();
@@ -188,12 +188,12 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   let panel = new inkVerticalPanel();
   panel.SetName(n"ModMenuSettingsPanel");
   panel.SetSize(860.0, 620.0);
-  panel.SetMargin(new inkMargin(320.0, 70.0, 10.0, 10.0));
+  panel.SetMargin(inkMargin(320.0, 70.0, 10.0, 10.0));
   this.modmenuMainPanel.AddChildWidget(panel);
 
   let settingsBg = new inkRectangle();
   settingsBg.SetSize(860.0, 620.0);
-  settingsBg.SetTintColor(new Color(40, 40, 40, 255));
+  settingsBg.SetTintColor(Color(40, 40, 40, 255));
   settingsBg.SetOpacity(0.9);
   panel.AddChildWidget(settingsBg);
 
@@ -201,14 +201,14 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   let tabs = new inkHorizontalPanel();
   tabs.SetName(n"ModMenuPageTabs");
   tabs.SetSize(840.0, 40.0);
-  tabs.SetMargin(new inkMargin(10.0, 10.0, 10.0, 0.0));
+  tabs.SetMargin(inkMargin(10.0, 10.0, 10.0, 0.0));
   panel.AddChildWidget(tabs);
   this.modmenuPageSelector = tabs;
 
   // Settings scroll
   let scroll = new inkScrollArea();
   scroll.SetSize(840.0, 560.0);
-  scroll.SetMargin(new inkMargin(10.0, 60.0, 10.0, 10.0));
+  scroll.SetMargin(inkMargin(10.0, 60.0, 10.0, 10.0));
   panel.AddChildWidget(scroll);
 
   let content = new inkVerticalPanel();
@@ -222,8 +222,8 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   placeholder.SetText("Select a mod from the list to view its settings");
   placeholder.SetFontFamily("Rajdhani");
   placeholder.SetFontSize(18);
-  placeholder.SetTintColor(new Color(150, 150, 150, 255));
-  placeholder.SetMargin(new inkMargin(20.0, 20.0, 0.0, 0.0));
+  placeholder.SetTintColor(Color(150, 150, 150, 255));
+  placeholder.SetMargin(inkMargin(20.0, 20.0, 0.0, 0.0));
   content.AddChildWidget(placeholder);
 }
 
@@ -273,8 +273,8 @@ private func ModMenu_RefreshModList() -> Void {
     noMods.SetText("No mods registered");
     noMods.SetFontFamily("Rajdhani");
     noMods.SetFontSize(16);
-    noMods.SetTintColor(new Color(120, 120, 120, 255));
-    noMods.SetMargin(new inkMargin(15.0, 10.0, 0.0, 0.0));
+    noMods.SetTintColor(Color(120, 120, 120, 255));
+    noMods.SetMargin(inkMargin(15.0, 10.0, 0.0, 0.0));
     this.modmenuModListContent.AddChildWidget(noMods);
     return;
   }
@@ -292,9 +292,9 @@ private func ModMenu_RefreshModList() -> Void {
     btn.SetText(modName);
     btn.SetFontFamily("Rajdhani");
     btn.SetFontSize(16);
-    btn.SetTintColor(new Color(180, 180, 180, 255));
+    btn.SetTintColor(Color(180, 180, 180, 255));
     btn.SetSize(240.0, 35.0);
-    btn.SetMargin(new inkMargin(10.0, 5.0, 10.0, 5.0));
+    btn.SetMargin(inkMargin(10.0, 5.0, 10.0, 5.0));
     btn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_ModSelected");
 
     this.modmenuModListContent.AddChildWidget(btn);
@@ -318,9 +318,9 @@ protected cb func OnModMenu_ModSelected(widget: wref<inkWidget>, userData: ref<I
       let btn = this.modmenuModButtons[i] as inkText;
       if IsDefined(btn) {
         if i == idx {
-          btn.SetTintColor(new Color(0, 180, 255, 255));
+          btn.SetTintColor(Color(0, 180, 255, 255));
         } else {
-          btn.SetTintColor(new Color(180, 180, 180, 255));
+          btn.SetTintColor(Color(180, 180, 180, 255));
         }
       }
       i += 1;
@@ -377,8 +377,8 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     noSettings.SetText("This mod has no configurable settings");
     noSettings.SetFontFamily("Rajdhani");
     noSettings.SetFontSize(16);
-    noSettings.SetTintColor(new Color(150, 150, 150, 255));
-    noSettings.SetMargin(new inkMargin(20.0, 20.0, 0.0, 0.0));
+    noSettings.SetTintColor(Color(150, 150, 150, 255));
+    noSettings.SetMargin(inkMargin(20.0, 20.0, 0.0, 0.0));
     this.modmenuSettingsContent.AddChildWidget(noSettings);
     return;
   }
@@ -397,9 +397,9 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     tab.SetText(pageTitle);
     tab.SetFontFamily("Rajdhani");
     tab.SetFontSize(14);
-    tab.SetTintColor(new Color(180, 180, 180, 255));
+    tab.SetTintColor(Color(180, 180, 180, 255));
     tab.SetSize(120.0, 30.0);
-    tab.SetMargin(new inkMargin(5.0, 5.0, 5.0, 5.0));
+    tab.SetMargin(inkMargin(5.0, 5.0, 5.0, 5.0));
     tab.RegisterToCallback(n"OnRelease", this, n"OnModMenu_PageSelected");
     this.modmenuPageSelector.AddChildWidget(tab);
 
@@ -476,13 +476,13 @@ private func ModMenu_LoadPageEntries(modId: String, pageId: String) -> Void {
 private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String, title: String) -> Void {
   let row = new inkHorizontalPanel();
   row.SetSize(800.0, 40.0);
-  row.SetMargin(new inkMargin(10.0, 10.0, 10.0, 5.0));
+  row.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
 
   let label = new inkText();
   label.SetText(title);
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(16);
-  label.SetTintColor(new Color(220, 220, 220, 255));
+  label.SetTintColor(Color(220, 220, 220, 255));
   label.SetSize(600.0, 30.0);
   row.AddChildWidget(label);
 
@@ -494,7 +494,7 @@ private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String
   toggle.SetFontFamily("Rajdhani");
   toggle.SetFontSize(16);
   toggle.SetSize(80.0, 30.0);
-  toggle.SetTintColor(value ? new Color(0, 200, 80, 255) : new Color(200, 60, 60, 255));
+  toggle.SetTintColor(value ? Color(0, 200, 80, 255) : Color(200, 60, 60, 255));
   toggle.RegisterToCallback(n"OnRelease", this, n"OnModMenu_TogglePressed");
   row.AddChildWidget(toggle);
 
@@ -514,7 +514,7 @@ protected cb func OnModMenu_TogglePressed(widget: wref<inkWidget>, userData: ref
     let text = widget as inkText;
     if IsDefined(text) {
       text.SetText(next ? "ON" : "OFF");
-      text.SetTintColor(next ? new Color(0, 200, 80, 255) : new Color(200, 60, 60, 255));
+      text.SetTintColor(next ? Color(0, 200, 80, 255) : Color(200, 60, 60, 255));
     }
   }
   return true;
@@ -524,7 +524,7 @@ protected cb func OnModMenu_TogglePressed(widget: wref<inkWidget>, userData: ref
 private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String, title: String) -> Void {
   let container = new inkVerticalPanel();
   container.SetSize(800.0, 55.0);
-  container.SetMargin(new inkMargin(10.0, 10.0, 10.0, 5.0));
+  container.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
 
   let labelRow = new inkHorizontalPanel();
   labelRow.SetSize(800.0, 25.0);
@@ -533,7 +533,7 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   label.SetText(title);
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(16);
-  label.SetTintColor(new Color(220, 220, 220, 255));
+  label.SetTintColor(Color(220, 220, 220, 255));
   labelRow.AddChildWidget(label);
 
   let value = ModMenu_GetSliderValue(modId, pageId, entryId);
@@ -542,21 +542,21 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   valText.SetText(FloatToString(value));
   valText.SetFontFamily("Rajdhani");
   valText.SetFontSize(14);
-  valText.SetTintColor(new Color(180, 180, 180, 255));
-  valText.SetMargin(new inkMargin(20.0, 0.0, 0.0, 0.0));
+  valText.SetTintColor(Color(180, 180, 180, 255));
+  valText.SetMargin(inkMargin(20.0, 0.0, 0.0, 0.0));
   labelRow.AddChildWidget(valText);
   container.AddChildWidget(labelRow);
 
   let ctrlRow = new inkHorizontalPanel();
   ctrlRow.SetSize(800.0, 30.0);
-  ctrlRow.SetMargin(new inkMargin(0.0, 5.0, 0.0, 0.0));
+  ctrlRow.SetMargin(inkMargin(0.0, 5.0, 0.0, 0.0));
 
   let decBtn = new inkText();
   decBtn.SetName(StringToName("sliderdec_" + entryId));
   decBtn.SetText(" - ");
   decBtn.SetFontFamily("Rajdhani");
   decBtn.SetFontSize(18);
-  decBtn.SetTintColor(new Color(200, 200, 200, 255));
+  decBtn.SetTintColor(Color(200, 200, 200, 255));
   decBtn.SetSize(40.0, 30.0);
   decBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_SliderDecPressed");
   ctrlRow.AddChildWidget(decBtn);
@@ -564,8 +564,8 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   let bar = new inkRectangle();
   bar.SetName(StringToName("sliderbar_" + entryId));
   bar.SetSize(300.0, 20.0);
-  bar.SetMargin(new inkMargin(10.0, 5.0, 10.0, 0.0));
-  bar.SetTintColor(new Color(0, 100, 200, 255));
+  bar.SetMargin(inkMargin(10.0, 5.0, 10.0, 0.0));
+  bar.SetTintColor(Color(0, 100, 200, 255));
   ctrlRow.AddChildWidget(bar);
 
   let incBtn = new inkText();
@@ -573,7 +573,7 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   incBtn.SetText(" + ");
   incBtn.SetFontFamily("Rajdhani");
   incBtn.SetFontSize(18);
-  incBtn.SetTintColor(new Color(200, 200, 200, 255));
+  incBtn.SetTintColor(Color(200, 200, 200, 255));
   incBtn.SetSize(40.0, 30.0);
   incBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_SliderIncPressed");
   ctrlRow.AddChildWidget(incBtn);
@@ -617,13 +617,13 @@ private func ModMenu_AdjustSlider(entryId: String, delta: Float) -> Void {
 private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: String, title: String) -> Void {
   let row = new inkHorizontalPanel();
   row.SetSize(800.0, 40.0);
-  row.SetMargin(new inkMargin(10.0, 10.0, 10.0, 5.0));
+  row.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
 
   let label = new inkText();
   label.SetText(title);
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(16);
-  label.SetTintColor(new Color(220, 220, 220, 255));
+  label.SetTintColor(Color(220, 220, 220, 255));
   label.SetSize(600.0, 30.0);
   row.AddChildWidget(label);
 
@@ -632,7 +632,7 @@ private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: 
   actionBtn.SetText("[Execute]");
   actionBtn.SetFontFamily("Rajdhani");
   actionBtn.SetFontSize(14);
-  actionBtn.SetTintColor(new Color(0, 160, 255, 255));
+  actionBtn.SetTintColor(Color(0, 160, 255, 255));
   actionBtn.SetSize(120.0, 30.0);
   actionBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_ActionPressed");
   row.AddChildWidget(actionBtn);
@@ -656,8 +656,8 @@ private func ModMenu_CreateLabel(title: String) -> Void {
   label.SetText(title);
   label.SetFontFamily("Rajdhani");
   label.SetFontSize(14);
-  label.SetTintColor(new Color(180, 180, 180, 255));
-  label.SetMargin(new inkMargin(15.0, 10.0, 0.0, 5.0));
+  label.SetTintColor(Color(180, 180, 180, 255));
+  label.SetMargin(inkMargin(15.0, 10.0, 0.0, 5.0));
   this.modmenuSettingsContent.AddChildWidget(label);
 }
 
