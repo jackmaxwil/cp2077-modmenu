@@ -335,6 +335,12 @@ private func ModMenu_SetModal(open: Bool) -> Void {
   }
 }
 
+// Whether the blocking notification (cursor, UI input) is up. For tests.
+@addMethod(inkGameController)
+public func ModMenu_IsModal() -> Bool {
+  return IsDefined(this.modmenuNotificationToken);
+}
+
 // =============================================================================
 // Mod list population
 // =============================================================================
@@ -395,27 +401,33 @@ protected cb func OnModMenu_ModSelected(evt: ref<inkPointerEvent>) -> Bool {
   }
   let widget = evt.GetTarget();
   ModMenu_Log("ui: click " + NameToString(widget.GetName()));
-  let idx = this.ModMenu_FindModButtonIndex(widget);
-  if idx >= 0 {
-    let modId = ModMenu_GetModId(idx);
-    this.modmenuCurrentModId = modId;
-    this.ModMenu_LoadModSettings(modId);
-
-    // Highlight selected
-    let i = 0;
-    while i < ArraySize(this.modmenuModButtons) {
-      let btn = this.modmenuModButtons[i] as inkText;
-      if IsDefined(btn) {
-        if i == idx {
-          btn.SetTintColor(Color(0, 180, 255, 255));
-        } else {
-          btn.SetTintColor(Color(180, 180, 180, 255));
-        }
-      }
-      i += 1;
-    }
-  }
+  this.ModMenu_SelectMod(this.ModMenu_FindModButtonIndex(widget));
   return true;
+}
+
+// Public so that tests can drive the menu without pointer events (tools/autotest in RED4ext).
+@addMethod(inkGameController)
+public func ModMenu_SelectMod(idx: Int32) -> Void {
+  if idx < 0 || idx >= ArraySize(this.modmenuModButtons) {
+    return;
+  }
+  let modId = ModMenu_GetModId(idx);
+  this.modmenuCurrentModId = modId;
+  this.ModMenu_LoadModSettings(modId);
+
+  // Highlight selected
+  let i = 0;
+  while i < ArraySize(this.modmenuModButtons) {
+    let btn = this.modmenuModButtons[i] as inkText;
+    if IsDefined(btn) {
+      if i == idx {
+        btn.SetTintColor(Color(0, 180, 255, 255));
+      } else {
+        btn.SetTintColor(Color(180, 180, 180, 255));
+      }
+    }
+    i += 1;
+  }
 }
 
 @addMethod(inkGameController)
@@ -606,21 +618,20 @@ protected cb func OnModMenu_TogglePressed(evt: ref<inkPointerEvent>) -> Bool {
   }
   let widget = evt.GetTarget();
   ModMenu_Log("ui: click " + NameToString(widget.GetName()));
-  let name = NameToString(widget.GetName());
   // Name is "toggle_<entryId>"
-  let entryId = StrAfterFirst(name, "toggle_");
-  if StrLen(entryId) > 0 && StrLen(this.modmenuCurrentModId) > 0 && StrLen(this.modmenuCurrentPageId) > 0 {
-    let cur = ModMenu_GetToggleValue(this.modmenuCurrentModId, this.modmenuCurrentPageId, entryId);
-    let next = !cur;
-    ModMenu_SetToggleValue(this.modmenuCurrentModId, this.modmenuCurrentPageId, entryId, next);
-
-    let text = widget as inkText;
-    if IsDefined(text) {
-      text.SetText(next ? "ON" : "OFF");
-      text.SetTintColor(next ? Color(0, 200, 80, 255) : Color(200, 60, 60, 255));
-    }
-  }
+  this.ModMenu_FlipToggle(StrAfterFirst(NameToString(widget.GetName()), "toggle_"));
   return true;
+}
+
+// Flips a toggle of the shown page and redraws the page. Public for tests, like ModMenu_SelectMod.
+@addMethod(inkGameController)
+public func ModMenu_FlipToggle(entryId: String) -> Void {
+  if StrLen(entryId) == 0 || StrLen(this.modmenuCurrentModId) == 0 || StrLen(this.modmenuCurrentPageId) == 0 {
+    return;
+  }
+  let cur = ModMenu_GetToggleValue(this.modmenuCurrentModId, this.modmenuCurrentPageId, entryId);
+  ModMenu_SetToggleValue(this.modmenuCurrentModId, this.modmenuCurrentPageId, entryId, !cur);
+  this.ModMenu_LoadPageEntries(this.modmenuCurrentModId, this.modmenuCurrentPageId);
 }
 
 @addMethod(inkGameController)
