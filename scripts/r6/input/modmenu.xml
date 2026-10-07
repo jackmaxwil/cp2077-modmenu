@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ModMenu input binding. Installed to the game's r6/input/, which inputloader.pl merges into
-     r6/config/inputUserMappings.xml and inputContexts.xml before launch. The ` key (left of 1; unused by the game,
-     and reachable on a Mac laptop without fn) toggles the menu; F10 also works on keyboards with function keys. -->
+<!-- ModMenu input binding, read by the game from r6/input/. The ` key (left of 1; unused by the game, and reachable on
+     a Mac laptop without fn) opens the menu; F10 also works on keyboards with function keys. The open menu is a
+     blocking popup, whose input context does not pass these keys on (appending them to UINotifications, UIShared or
+     UI had no effect), so Esc or its Close button closes it. -->
 <bindings>
   <mapping name="modmenu_toggle" type="Button" append="true">
     <button id="IK_Tilde" />
@@ -9,14 +10,6 @@
   </mapping>
 
   <context name="Exploration" append="true">
-    <action name="modmenu_toggle" map="modmenu_toggle" />
-  </context>
-
-  <context name="MainMenu" append="true">
-    <action name="modmenu_toggle" map="modmenu_toggle" />
-  </context>
-
-  <context name="Menu" append="true">
     <action name="modmenu_toggle" map="modmenu_toggle" />
   </context>
 </bindings>

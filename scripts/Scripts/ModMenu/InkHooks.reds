@@ -3,7 +3,7 @@ module ModMenu
 
 // =============================================================================
 // ModMenu overlay — hooks the HUD controller to inject the full settings UI.
-// Toggle via F10 (modmenu_toggle action).
+// Opened with ` or F10 (modmenu_toggle action); closed with Esc or its Close button.
 // =============================================================================
 
 @addField(inkGameController)
@@ -41,6 +41,12 @@ private let modmenuCurrentPageId: String;
 
 @addField(inkGameController)
 private let modmenuVisible: Bool;
+
+@addField(inkGameController)
+private let modmenuNotification: ref<inkGameNotificationData>;
+
+@addField(inkGameController)
+private let modmenuNotificationToken: ref<inkGameNotificationToken>;
 
 // The overlay lives on the popups manager: its root covers the whole screen and it exists for the whole time the
 // player is in the world. (The health bar's root, used before, is small and fades out at full health.)
@@ -167,6 +173,27 @@ private func ModMenu_CreateHeader() -> Void {
   title.SetMargin(inkMargin(20.0, 15.0, 0.0, 0.0));
   this.modmenuMainPanel.AddChildWidget(title);
   this.modmenuTitleText = title;
+
+  let close = new inkText();
+  close.SetName(n"ModMenuClose");
+  close.SetText("Close  [Esc]");
+  close.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
+  close.SetFontStyle(n"Medium");
+  close.SetFontSize(22);
+  close.SetTintColor(Color(220, 80, 80, 255));
+  close.SetMargin(inkMargin(1050.0, 20.0, 0.0, 0.0));
+  this.ModMenu_Clickable(close, n"OnModMenu_ClosePressed");
+  this.modmenuMainPanel.AddChildWidget(close);
+}
+
+@addMethod(inkGameController)
+protected cb func OnModMenu_ClosePressed(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  ModMenu_Log("ui: click close");
+  this.ModMenu_Toggle(false);
+  return true;
 }
 
 @addMethod(inkGameController)
@@ -251,11 +278,16 @@ private func ModMenu_CreateSettingsPanel() -> Void {
 public func ModMenu_Toggle(open: Bool) -> Void {
   this.modmenuVisible = open;
   ModMenu_SetOpen(open);
+  let player = this.GetPlayerControlledObject() as PlayerPuppet;
+  if IsDefined(player) {
+    player.modmenuOpen = open;
+  }
   ModMenu_Log("hud: toggle " + ToString(open) + ", overlay defined: " + ToString(IsDefined(this.modmenuRootCanvas)));
 
   if IsDefined(this.modmenuRootCanvas) {
     this.modmenuRootCanvas.SetVisible(open);
   }
+  this.ModMenu_SetModal(open);
 
   if open {
     this.ModMenu_RefreshModList();
@@ -266,6 +298,40 @@ public func ModMenu_Toggle(open: Bool) -> Void {
     if IsDefined(this.modmenuStatusLabel) {
       this.modmenuStatusLabel.SetVisible(true);
     }
+  }
+}
+
+// Pointer callbacks (OnRelease etc.) reach a widget only if it is interactive; the callback receives the pointer event.
+@addMethod(inkGameController)
+private func ModMenu_Clickable(widget: ref<inkWidget>, callback: CName) -> Void {
+  widget.SetInteractive(true);
+  widget.RegisterToCallback(n"OnRelease", this, callback);
+}
+
+// While open, an (empty) blocking notification on this controller's notification layer shows the mouse cursor and
+// switches input from gameplay to the UI, so the overlay's widgets get clicks and the player does not move or shoot.
+// The UI context and visual state tell the HUD and other mods that a modal popup is up (as in-game popups do).
+@addMethod(inkGameController)
+private func ModMenu_SetModal(open: Bool) -> Void {
+  let uiSystem = GameInstance.GetUISystem(this.GetPlayerControlledObject().GetGame());
+  if open && !IsDefined(this.modmenuNotificationToken) {
+    let data = new inkGameNotificationData();
+    data.notificationName = n"ModMenu";
+    data.queueName = n"modmenu";
+    data.isBlocking = true;
+    data.useCursor = true;
+    this.modmenuNotification = data;
+    this.modmenuNotificationToken = this.ShowGameNotification(data);
+    uiSystem.PushGameContext(UIGameContext.ModalPopup);
+    uiSystem.RequestNewVisualState(n"inkModalPopupState");
+    ModMenu_Log("hud: modal on, token defined: " + ToString(IsDefined(this.modmenuNotificationToken)));
+  } else if !open && IsDefined(this.modmenuNotificationToken) {
+    this.modmenuNotificationToken.TriggerCallback(this.modmenuNotification);
+    this.modmenuNotificationToken = null;
+    this.modmenuNotification = null;
+    uiSystem.PopGameContext(UIGameContext.ModalPopup);
+    uiSystem.RestorePreviousVisualState(n"inkModalPopupState");
+    ModMenu_Log("hud: modal off");
   }
 }
 
@@ -313,7 +379,7 @@ private func ModMenu_RefreshModList() -> Void {
     btn.SetTintColor(Color(180, 180, 180, 255));
     btn.SetSize(240.0, 35.0);
     btn.SetMargin(inkMargin(10.0, 5.0, 10.0, 5.0));
-    btn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_ModSelected");
+    this.ModMenu_Clickable(btn, n"OnModMenu_ModSelected");
 
     this.modmenuModListContent.AddChildWidget(btn);
     ArrayPush(this.modmenuModButtons, btn);
@@ -323,7 +389,12 @@ private func ModMenu_RefreshModList() -> Void {
 }
 
 @addMethod(inkGameController)
-protected cb func OnModMenu_ModSelected(widget: wref<inkWidget>, userData: ref<IScriptable>) -> Bool {
+protected cb func OnModMenu_ModSelected(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  let widget = evt.GetTarget();
+  ModMenu_Log("ui: click " + NameToString(widget.GetName()));
   let idx = this.ModMenu_FindModButtonIndex(widget);
   if idx >= 0 {
     let modId = ModMenu_GetModId(idx);
@@ -420,7 +491,7 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     tab.SetTintColor(Color(180, 180, 180, 255));
     tab.SetSize(120.0, 30.0);
     tab.SetMargin(inkMargin(5.0, 5.0, 5.0, 5.0));
-    tab.RegisterToCallback(n"OnRelease", this, n"OnModMenu_PageSelected");
+    this.ModMenu_Clickable(tab, n"OnModMenu_PageSelected");
     this.modmenuPageSelector.AddChildWidget(tab);
 
     pi += 1;
@@ -434,7 +505,12 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
 }
 
 @addMethod(inkGameController)
-protected cb func OnModMenu_PageSelected(widget: wref<inkWidget>, userData: ref<IScriptable>) -> Bool {
+protected cb func OnModMenu_PageSelected(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  let widget = evt.GetTarget();
+  ModMenu_Log("ui: click " + NameToString(widget.GetName()));
   let name = widget.GetName();
   let nameStr = NameToString(name);
 
@@ -471,14 +547,15 @@ private func ModMenu_LoadPageEntries(modId: String, pageId: String) -> Void {
       entryTitle = entryId;
     }
 
+    // ModMenuEntryType in include/modmenu/modmenu_api.h: 1 toggle, 2 slider, 3 button, 4 text.
     switch entryType {
-      case 0:
+      case 1:
         this.ModMenu_CreateToggle(modId, pageId, entryId, entryTitle);
         break;
-      case 1:
+      case 2:
         this.ModMenu_CreateSlider(modId, pageId, entryId, entryTitle);
         break;
-      case 2:
+      case 3:
         this.ModMenu_CreateActionButton(modId, pageId, entryId, entryTitle);
         break;
       default:
@@ -494,7 +571,7 @@ private func ModMenu_LoadPageEntries(modId: String, pageId: String) -> Void {
 
 @addMethod(inkGameController)
 private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String, title: String) -> Void {
-  let row = new inkHorizontalPanel();
+  let row = new inkCanvas();
   row.SetSize(800.0, 40.0);
   row.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
 
@@ -504,7 +581,6 @@ private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String
   label.SetFontStyle(n"Medium");
   label.SetFontSize(16);
   label.SetTintColor(Color(220, 220, 220, 255));
-  label.SetSize(600.0, 30.0);
   row.AddChildWidget(label);
 
   let value = ModMenu_GetToggleValue(modId, pageId, entryId);
@@ -515,16 +591,21 @@ private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String
   toggle.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   toggle.SetFontStyle(n"Medium");
   toggle.SetFontSize(16);
-  toggle.SetSize(80.0, 30.0);
+  toggle.SetMargin(inkMargin(600.0, 0.0, 0.0, 0.0));
   toggle.SetTintColor(value ? Color(0, 200, 80, 255) : Color(200, 60, 60, 255));
-  toggle.RegisterToCallback(n"OnRelease", this, n"OnModMenu_TogglePressed");
+  this.ModMenu_Clickable(toggle, n"OnModMenu_TogglePressed");
   row.AddChildWidget(toggle);
 
   this.modmenuSettingsContent.AddChildWidget(row);
 }
 
 @addMethod(inkGameController)
-protected cb func OnModMenu_TogglePressed(widget: wref<inkWidget>, userData: ref<IScriptable>) -> Bool {
+protected cb func OnModMenu_TogglePressed(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  let widget = evt.GetTarget();
+  ModMenu_Log("ui: click " + NameToString(widget.GetName()));
   let name = NameToString(widget.GetName());
   // Name is "toggle_<entryId>"
   let entryId = StrAfterFirst(name, "toggle_");
@@ -583,7 +664,7 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   decBtn.SetFontSize(18);
   decBtn.SetTintColor(Color(200, 200, 200, 255));
   decBtn.SetSize(40.0, 30.0);
-  decBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_SliderDecPressed");
+  this.ModMenu_Clickable(decBtn, n"OnModMenu_SliderDecPressed");
   ctrlRow.AddChildWidget(decBtn);
 
   let bar = new inkRectangle();
@@ -601,7 +682,7 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   incBtn.SetFontSize(18);
   incBtn.SetTintColor(Color(200, 200, 200, 255));
   incBtn.SetSize(40.0, 30.0);
-  incBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_SliderIncPressed");
+  this.ModMenu_Clickable(incBtn, n"OnModMenu_SliderIncPressed");
   ctrlRow.AddChildWidget(incBtn);
 
   container.AddChildWidget(ctrlRow);
@@ -609,7 +690,12 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
 }
 
 @addMethod(inkGameController)
-protected cb func OnModMenu_SliderDecPressed(widget: wref<inkWidget>, userData: ref<IScriptable>) -> Bool {
+protected cb func OnModMenu_SliderDecPressed(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  let widget = evt.GetTarget();
+  ModMenu_Log("ui: click " + NameToString(widget.GetName()));
   let name = NameToString(widget.GetName());
   let entryId = StrAfterFirst(name, "sliderdec_");
   this.ModMenu_AdjustSlider(entryId, -0.1);
@@ -617,7 +703,12 @@ protected cb func OnModMenu_SliderDecPressed(widget: wref<inkWidget>, userData: 
 }
 
 @addMethod(inkGameController)
-protected cb func OnModMenu_SliderIncPressed(widget: wref<inkWidget>, userData: ref<IScriptable>) -> Bool {
+protected cb func OnModMenu_SliderIncPressed(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  let widget = evt.GetTarget();
+  ModMenu_Log("ui: click " + NameToString(widget.GetName()));
   let name = NameToString(widget.GetName());
   let entryId = StrAfterFirst(name, "sliderinc_");
   this.ModMenu_AdjustSlider(entryId, 0.1);
@@ -641,7 +732,7 @@ private func ModMenu_AdjustSlider(entryId: String, delta: Float) -> Void {
 
 @addMethod(inkGameController)
 private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: String, title: String) -> Void {
-  let row = new inkHorizontalPanel();
+  let row = new inkCanvas();
   row.SetSize(800.0, 40.0);
   row.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
 
@@ -651,7 +742,6 @@ private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: 
   label.SetFontStyle(n"Medium");
   label.SetFontSize(16);
   label.SetTintColor(Color(220, 220, 220, 255));
-  label.SetSize(600.0, 30.0);
   row.AddChildWidget(label);
 
   let actionBtn = new inkText();
@@ -661,15 +751,20 @@ private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: 
   actionBtn.SetFontStyle(n"Medium");
   actionBtn.SetFontSize(14);
   actionBtn.SetTintColor(Color(0, 160, 255, 255));
-  actionBtn.SetSize(120.0, 30.0);
-  actionBtn.RegisterToCallback(n"OnRelease", this, n"OnModMenu_ActionPressed");
+  actionBtn.SetMargin(inkMargin(600.0, 0.0, 0.0, 0.0));
+  this.ModMenu_Clickable(actionBtn, n"OnModMenu_ActionPressed");
   row.AddChildWidget(actionBtn);
 
   this.modmenuSettingsContent.AddChildWidget(row);
 }
 
 @addMethod(inkGameController)
-protected cb func OnModMenu_ActionPressed(widget: wref<inkWidget>, userData: ref<IScriptable>) -> Bool {
+protected cb func OnModMenu_ActionPressed(evt: ref<inkPointerEvent>) -> Bool {
+  if !evt.IsAction(n"click") {
+    return false;
+  }
+  let widget = evt.GetTarget();
+  ModMenu_Log("ui: click " + NameToString(widget.GetName()));
   let name = NameToString(widget.GetName());
   let entryId = StrAfterFirst(name, "action_");
   if StrLen(entryId) > 0 && StrLen(this.modmenuCurrentModId) > 0 && StrLen(this.modmenuCurrentPageId) > 0 {
@@ -745,10 +840,10 @@ public class ModMenuInputListener {
       ModMenu_Log("input: " + NameToString(actionName) + " released");
     }
 
-    if Equals(actionName, n"modmenu_toggle") && Equals(actionType, gameinputActionType.BUTTON_RELEASED) {
-      this.player.modmenuOpen = !this.player.modmenuOpen;
+    let closeKey = this.player.modmenuOpen && (Equals(actionName, n"cancel") || Equals(actionName, n"close_popup"));
+    if (Equals(actionName, n"modmenu_toggle") || closeKey) && Equals(actionType, gameinputActionType.BUTTON_RELEASED) {
       if IsDefined(this.player.modmenuOverlay) {
-        this.player.modmenuOverlay.ModMenu_Toggle(this.player.modmenuOpen);
+        this.player.modmenuOverlay.ModMenu_Toggle(!this.player.modmenuOpen);
       } else {
         ModMenu_Log("input: toggle pressed but no overlay is attached");
       }
