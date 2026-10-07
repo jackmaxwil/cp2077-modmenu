@@ -1,61 +1,36 @@
-# ModMenu macOS — Agent Guidelines
+# ModMenu macOS: agent notes
 
-## Project Context
+In-game mod settings menu for Cyberpunk 2077 2.3.1 (Steam, Apple silicon), a RED4ext plugin with a REDscript overlay. Branch `main`, remote `jackmaxwil/cp2077-modmenu`. User docs: `README.md`.
 
-ModMenu is a Cyberpunk 2077 mod that provides an in-game settings overlay. Native C++ backend with REDscript UI, loaded as a RED4ext `.dylib` plugin.
+## Rules
 
-## Current Status (Canonical)
+- **macOS first.** macOS arm64 is the only target. No Win32 code.
+- **Verified addresses only.** ModMenu adds no addresses of its own; it uses RED4ext.SDK APIs, whose addresses come from the SDK's canonical DB, where only entries marked verified resolve. RED4ext refuses a plugin that needs an unverified hash. `python3 vendor/RED4ext.SDK/scripts/plugin_requirements.py build-dev/libModMenu.dylib` must report 0 unverified (CI runs it). See `docs/ADDRESS_ANCHORS.md`.
+- **Native hooks only.** ModMenu patches no game code: it registers script natives through RTTI, and the UI hooks game controllers from REDscript (`@wrapMethod`/`@addMethod`). Any future native hook goes through RED4ext's native hook engine.
+- **Never launch the game or Steam from tooling.** In-game testing is done by the user, or by RED4ext's `tools/cp-run` / `tools/cp-regress` (scenarios `modmenu`, `modmenu-ui`) when asked.
+- **Commits:** one logical change per commit, plain messages, no attribution or co-author lines. Work on `main`; never force-push.
 
-See `docs/STATUS.md` for runtime validation checklist and architecture details.
+## Layout
 
-## Development Practices
+- `include/modmenu/modmenu_api.h` the public C API other plugins call (`ModMenu_GetApi`, optional `ModMenu_Register` export).
+- `src/main.cpp` plugin entry, the script natives (`ModMenu_*`, declared in `scripts/Scripts/ModMenu/Natives.reds`) and ModMenu's own demo page. `src/modmenu_backend.*` the model, settings persistence (`red4ext/plugins/ModMenu/settings/<modId>.json`) and discovery of plugins exporting `ModMenu_Register`.
+- `scripts/Scripts/ModMenu/` REDscript, installed as `red4ext/plugins/ModMenu/Scripts`. `InkHooks.reds` is the whole overlay and input listener.
+- `scripts/r6/input/modmenu.xml` the `` ` ``/F10 binding, installed into the game's `r6/input/`.
 
-### Architecture
+RED4ext's `tools/cp-dev`, `tools/cp-gate` and `scripts/create_release.sh` use `libModMenu.dylib` (from `build-dev/` or `build-release/`), `scripts/Scripts/ModMenu` and `scripts/r6`. Keep those paths stable. The autotest scenarios call `ModMenu_Toggle`, `ModMenu_SelectMod`, `ModMenu_FlipToggle` and `ModMenu_IsModal`; keep them public.
 
-1. **REDscript-only UI.** All UI is in `scripts/Scripts/ModMenu/InkHooks.reds`. No native C++ UI hooks.
-2. **Native bridge.** 22 functions registered via RED4ext RTTI for REDscript to call into C++.
-3. **Settings persistence.** Per-mod JSON files in `settings/<modId>.json`.
-4. **F10 toggle.** Input binding in `scripts/r6/input/modmenu.xml`.
-
-### Platform Awareness
-
-1. **macOS ARM64 only.** No Windows compatibility needed.
-2. **No RTTI address guessing.** UI hooks via REDscript `@addMethod`, not native address resolution.
-3. **No native function hooks.** ModMenu registers script natives through RTTI; it does not patch game code.
-
-### Code Standards
-
-1. **C++20** for plugin code.
-2. **spdlog** for all logging.
-3. **PascalCase** for public functions, `camelCase` for private.
-
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| `src/main.cpp` | Plugin entry + bridge registrations |
-| `src/modmenu_backend.cpp` | Data model, persistence, discovery |
-| `scripts/Scripts/ModMenu/InkHooks.reds` | Full overlay UI |
-| `scripts/Scripts/ModMenu/ModMenuUI.reds` | Data classes |
-| `scripts/r6/input/modmenu.xml` | Input binding |
-
-## Building
+## Build
 
 ```bash
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(sysctl -n hw.ncpu)
+cmake -S . -B build-dev -DCMAKE_BUILD_TYPE=Release
+cmake --build build-dev -j8
 ```
 
-## Testing
+Needs the submodule (`git submodule update --init --recursive`). `-DRED4EXT_SDK_DIR=<path>` overrides the SDK (cp-dev and create_release pass the workspace `../RED4ext.SDK`).
 
-1. Copy `libModMenu.dylib` to `<game>/red4ext/plugins/ModMenu/ModMenu.dylib`
-2. Copy `scripts/Scripts/` and `scripts/r6/` to plugin directory
-3. Launch via `launch_red4ext.sh`
-4. Press F10 to toggle overlay
+No offline REDscript compiler is available: keep `.reds` edits minimal and re-read the whole class after editing. A script error stops the game at script initialization.
 
-## Common Pitfalls
+## Debugging
 
-1. **Input binding not merged.** `modmenu.xml` must be merged into `inputUserMappings.xml`.
-2. **REDscript not installed.** Scripts must be in the correct plugin subdirectory.
-3. **Bridge function mismatch.** If REDscript calls a function that isn't registered, it silently fails.
+- Script log: `<game>/red4ext/logs/modmenu.log`, appended by the `ModMenu_Log` native (overlay attach, toggle, modal, clicks).
+- Loader log: `<game>/red4ext/logs/red4ext-*.log` names a refused plugin and the reason; the backend's own messages go through RED4ext's logger into `red4ext/logs/` too.
