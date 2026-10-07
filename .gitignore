@@ -1,5 +1,7 @@
 # Build artifacts
-build/
+/build*/
+*.log
+__pycache__/
 *.dylib
 *.o
 *.a
