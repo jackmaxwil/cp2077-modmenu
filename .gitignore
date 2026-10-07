@@ -28,3 +28,6 @@ DerivedData/
 # Temporary files
 *.tmp
 .tmp/
+
+# Release packages (tools/package_release.sh)
+dist/

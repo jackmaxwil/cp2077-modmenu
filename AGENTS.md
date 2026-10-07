@@ -21,14 +21,13 @@ See `docs/STATUS.md` for runtime validation checklist and architecture details.
 
 1. **macOS ARM64 only.** No Windows compatibility needed.
 2. **No RTTI address guessing.** UI hooks via REDscript `@addMethod`, not native address resolution.
-3. **Frida for hooks.** Runtime function hooking via Frida Gadget.
+3. **No native function hooks.** ModMenu registers script natives through RTTI; it does not patch game code.
 
 ### Code Standards
 
 1. **C++20** for plugin code.
 2. **spdlog** for all logging.
-3. **Catch2** for tests.
-4. **PascalCase** for public functions, `camelCase` for private.
+3. **PascalCase** for public functions, `camelCase` for private.
 
 ## Key Files
 
@@ -44,7 +43,7 @@ See `docs/STATUS.md` for runtime validation checklist and architecture details.
 
 ```bash
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DMODMENU_BUILD_TESTS=OFF
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j$(sysctl -n hw.ncpu)
 ```
 

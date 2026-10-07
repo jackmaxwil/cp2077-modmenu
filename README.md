@@ -17,7 +17,7 @@ ModMenu provides an in-game overlay for configuring mod settings. Mods register 
 
 ```bash
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DMODMENU_BUILD_TESTS=OFF
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j$(sysctl -n hw.ncpu)
 ```
 
