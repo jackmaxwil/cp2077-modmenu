@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ModMenu v0.1 input mapping.
-  NOTE: This is a MERGE SNIPPET for the game's r6/config/inputUserMappings.xml which uses:
-    <bindings> ... <mapping .../> ... </bindings>
--->
+<!-- ModMenu input binding. Installed to the game's r6/input/, which inputloader.pl merges into
+     r6/config/inputUserMappings.xml and inputContexts.xml before launch. F10 toggles the menu. -->
 <bindings>
-  <mapping name="modmenu_toggle" type="Button">
+  <mapping name="modmenu_toggle" type="Button" append="true">
     <button id="IK_F10" />
   </mapping>
-</bindings>
 
+  <context name="Exploration" append="true">
+    <action name="modmenu_toggle" map="modmenu_toggle" />
+  </context>
+
+  <context name="MainMenu" append="true">
+    <action name="modmenu_toggle" map="modmenu_toggle" />
+  </context>
+
+  <context name="Menu" append="true">
+    <action name="modmenu_toggle" map="modmenu_toggle" />
+  </context>
+</bindings>
