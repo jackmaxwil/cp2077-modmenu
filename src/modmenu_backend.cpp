@@ -937,6 +937,22 @@ bool Backend::Api_RegisterToggle(const char* modId, const char* pageId, const Mo
 {
     if (!modId || !pageId || !toggle || !toggle->entryId.ptr || !*toggle->entryId.ptr)
         return false;
+    // A saved value that differs from the default is reported through onChanged once registered (outside the lock,
+    // so the callback may call the API), so the mod applies it at startup.
+    bool restored = false;
+    if (!RegisterToggleLocked(modId, pageId, toggle, restored))
+        return false;
+    if (restored && toggle->onChanged)
+    {
+        const ModMenuEntryPath path{.modId = {.id = {modId}}, .pageId = {.id = {pageId}}, .entryId = {.id = toggle->entryId}};
+        toggle->onChanged(&path, !toggle->defaultValue);
+    }
+    return true;
+}
+
+bool Backend::RegisterToggleLocked(const char* modId, const char* pageId, const ModMenuToggleInfo* toggle,
+                                   bool& restored)
+{
     auto& self = Backend::Get();
     std::scoped_lock _(self.m_mutex);
     auto* mod = self.FindMod(modId);
@@ -960,7 +976,10 @@ bool Backend::Api_RegisterToggle(const char* modId, const char* pageId, const Mo
             const auto k = MakeEntryKey(page->id, e.id);
             const auto it = itM->second.find(k);
             if (it != itM->second.end())
+            {
                 e.boolValue = it->second;
+                restored = it->second != toggle->defaultValue;
+            }
         }
     }
     e.onToggleChanged = toggle->onChanged;
@@ -972,6 +991,21 @@ bool Backend::Api_RegisterSlider(const char* modId, const char* pageId, const Mo
 {
     if (!modId || !pageId || !slider || !slider->entryId.ptr || !*slider->entryId.ptr)
         return false;
+    // As for toggles: a restored value that differs from the default is reported through onChanged.
+    float restored = slider->defaultValue;
+    if (!RegisterSliderLocked(modId, pageId, slider, restored))
+        return false;
+    if (restored != slider->defaultValue && slider->onChanged)
+    {
+        const ModMenuEntryPath path{.modId = {.id = {modId}}, .pageId = {.id = {pageId}}, .entryId = {.id = slider->entryId}};
+        slider->onChanged(&path, restored);
+    }
+    return true;
+}
+
+bool Backend::RegisterSliderLocked(const char* modId, const char* pageId, const ModMenuSliderInfo* slider,
+                                   float& restored)
+{
     auto& self = Backend::Get();
     std::scoped_lock _(self.m_mutex);
     auto* mod = self.FindMod(modId);
@@ -998,7 +1032,10 @@ bool Backend::Api_RegisterSlider(const char* modId, const char* pageId, const Mo
             const auto k = MakeEntryKey(page->id, e.id);
             const auto it = itM->second.find(k);
             if (it != itM->second.end())
+            {
                 e.floatValue = it->second;
+                restored = it->second;
+            }
         }
     }
     e.onSliderChanged = slider->onChanged;

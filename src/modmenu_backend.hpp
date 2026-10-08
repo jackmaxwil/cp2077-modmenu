@@ -107,6 +107,10 @@ private:
     static bool Api_RegisterPage(const char* modId, const ModMenuPageInfo* page);
     static bool Api_RegisterToggle(const char* modId, const char* pageId, const ModMenuToggleInfo* toggle);
     static bool Api_RegisterSlider(const char* modId, const char* pageId, const ModMenuSliderInfo* slider);
+    static bool RegisterToggleLocked(const char* modId, const char* pageId, const ModMenuToggleInfo* toggle,
+                                     bool& restored);
+    static bool RegisterSliderLocked(const char* modId, const char* pageId, const ModMenuSliderInfo* slider,
+                                     float& restored);
     static bool Api_RegisterButton(const char* modId, const char* pageId, const ModMenuButtonInfo* button);
 
     const Mod* FindMod(std::string_view id) const;

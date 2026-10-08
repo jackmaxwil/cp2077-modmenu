@@ -55,7 +55,7 @@ if (getApi)
 
 - Entry types: toggle (`RegisterToggle`), slider (`RegisterSlider`: min, max, step, default), button (`RegisterButton`). `MODMENU_ENTRY_TEXT` is shown as a plain label; there is no register call for it yet.
 - IDs (mod, page, entry) are stable keys for the saved values. Do not rename them between versions.
-- A saved value replaces `defaultValue` at registration. Your `onChanged` callback runs when the player changes it.
+- A saved value replaces `defaultValue` at registration; when it differs from the default, your `onChanged` callback runs once right after the register call (so your mod applies it at startup). After that it runs when the player changes the value.
 
 ## Troubleshooting
 
