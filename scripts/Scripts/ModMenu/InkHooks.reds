@@ -99,14 +99,22 @@ private func ModMenu_CreateStatusLabel() -> Void {
   label.SetText("ModMenu Active - press ` (or F10)");
   label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   label.SetFontStyle(n"Medium");
-  label.SetFontSize(18);
+  label.SetFontSize(Cast<Int32>(ModMenu_U(18.0)));
   label.SetTintColor(Color(0, 200, 80, 200));
-  label.SetMargin(inkMargin(50.0, 50.0, 0.0, 0.0));
+  label.SetMargin(inkMargin(ModMenu_U(50.0), ModMenu_U(50.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   label.SetAnchor(inkEAnchor.TopLeft);
   label.SetOpacity(0.6);
   root.AddChildWidget(label);
   this.modmenuStatusLabel = label;
   ModMenu_Log("hud: status label added");
+}
+
+// Layout scale: every size, margin and font size below is in design units of ModMenu_U. The game's UI units follow the
+// screen height (1080 units tall at any resolution), so this sets the menu's share of the screen: the 1200x700 design
+// panel is about 80% of a 16:10 screen (75% of a 16:9 one). The scale is applied to the layout itself rather than as a
+// render transform, so pointer hit-testing matches what is drawn.
+func ModMenu_U(v: Float) -> Float {
+  return v * 1.15;
 }
 
 // =============================================================================
@@ -136,15 +144,12 @@ private func ModMenu_CreateFullUI() -> Void {
   bg.SetOpacity(0.8);
   canvas.AddChildWidget(bg);
 
-  // Main panel, 1200x700, centred on screen.
+  // Main panel, 1200x700 design units (ModMenu_U), centred on screen.
   let mainPanel = new inkCanvas();
   mainPanel.SetName(n"ModMenuMainPanel");
-  mainPanel.SetSize(1200.0, 700.0);
+  mainPanel.SetSize(ModMenu_U(1200.0), ModMenu_U(700.0));
   mainPanel.SetAnchor(inkEAnchor.Centered);
   mainPanel.SetAnchorPoint(0.5, 0.5);
-  // Laid out in 1200x700 units, shown at 65% so it leaves the scene visible around it.
-  mainPanel.SetRenderTransformPivot(0.5, 0.5);
-  mainPanel.SetScale(Vector2(0.65, 0.65));
   canvas.AddChildWidget(mainPanel);
   this.modmenuMainPanel = mainPanel;
 
@@ -168,9 +173,9 @@ private func ModMenu_CreateHeader() -> Void {
   title.SetText("ModMenu");
   title.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   title.SetFontStyle(n"Medium");
-  title.SetFontSize(32);
+  title.SetFontSize(Cast<Int32>(ModMenu_U(32.0)));
   title.SetTintColor(Color(255, 255, 255, 255));
-  title.SetMargin(inkMargin(20.0, 15.0, 0.0, 0.0));
+  title.SetMargin(inkMargin(ModMenu_U(20.0), ModMenu_U(15.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   this.modmenuMainPanel.AddChildWidget(title);
   this.modmenuTitleText = title;
 
@@ -179,9 +184,9 @@ private func ModMenu_CreateHeader() -> Void {
   close.SetText("Close  [Esc]");
   close.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   close.SetFontStyle(n"Medium");
-  close.SetFontSize(22);
+  close.SetFontSize(Cast<Int32>(ModMenu_U(22.0)));
   close.SetTintColor(Color(220, 80, 80, 255));
-  close.SetMargin(inkMargin(1050.0, 20.0, 0.0, 0.0));
+  close.SetMargin(inkMargin(ModMenu_U(1050.0), ModMenu_U(20.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   this.ModMenu_Clickable(close, n"OnModMenu_ClosePressed");
   this.modmenuMainPanel.AddChildWidget(close);
 }
@@ -201,8 +206,8 @@ private func ModMenu_CreateSidebar() -> Void {
   // Left column: 300x620 at (10, 70) inside the main panel.
   let sidebar = new inkCanvas();
   sidebar.SetName(n"ModMenuSidebar");
-  sidebar.SetSize(300.0, 620.0);
-  sidebar.SetMargin(inkMargin(10.0, 70.0, 0.0, 0.0));
+  sidebar.SetSize(ModMenu_U(300.0), ModMenu_U(620.0));
+  sidebar.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(70.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   this.modmenuMainPanel.AddChildWidget(sidebar);
 
   let sidebarBg = new inkRectangle();
@@ -215,15 +220,15 @@ private func ModMenu_CreateSidebar() -> Void {
   label.SetText("Installed Mods");
   label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   label.SetFontStyle(n"Medium");
-  label.SetFontSize(20);
+  label.SetFontSize(Cast<Int32>(ModMenu_U(20.0)));
   label.SetTintColor(Color(200, 200, 200, 255));
-  label.SetMargin(inkMargin(15.0, 15.0, 0.0, 0.0));
+  label.SetMargin(inkMargin(ModMenu_U(15.0), ModMenu_U(15.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   sidebar.AddChildWidget(label);
 
   // Mod buttons stack vertically below the label.
   let content = new inkVerticalPanel();
   content.SetName(n"ModMenuModListContent");
-  content.SetMargin(inkMargin(10.0, 50.0, 0.0, 0.0));
+  content.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(50.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   sidebar.AddChildWidget(content);
   this.modmenuModListContent = content;
   this.modmenuSidebar = sidebar;
@@ -234,8 +239,8 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   // Right column: 860x620 at (320, 70) inside the main panel.
   let panel = new inkCanvas();
   panel.SetName(n"ModMenuSettingsPanel");
-  panel.SetSize(860.0, 620.0);
-  panel.SetMargin(inkMargin(320.0, 70.0, 0.0, 0.0));
+  panel.SetSize(ModMenu_U(860.0), ModMenu_U(620.0));
+  panel.SetMargin(inkMargin(ModMenu_U(320.0), ModMenu_U(70.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   this.modmenuMainPanel.AddChildWidget(panel);
 
   let settingsBg = new inkRectangle();
@@ -247,14 +252,14 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   // Page tabs along the top.
   let tabs = new inkHorizontalPanel();
   tabs.SetName(n"ModMenuPageTabs");
-  tabs.SetMargin(inkMargin(10.0, 10.0, 0.0, 0.0));
+  tabs.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   panel.AddChildWidget(tabs);
   this.modmenuPageSelector = tabs;
 
   // Settings entries stack vertically below the tabs.
   let content = new inkVerticalPanel();
   content.SetName(n"ModMenuSettingsContent");
-  content.SetMargin(inkMargin(10.0, 60.0, 0.0, 0.0));
+  content.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(60.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   panel.AddChildWidget(content);
   this.modmenuSettingsContent = content;
 
@@ -262,9 +267,9 @@ private func ModMenu_CreateSettingsPanel() -> Void {
   placeholder.SetText("Select a mod from the list to view its settings");
   placeholder.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   placeholder.SetFontStyle(n"Medium");
-  placeholder.SetFontSize(18);
+  placeholder.SetFontSize(Cast<Int32>(ModMenu_U(18.0)));
   placeholder.SetTintColor(Color(150, 150, 150, 255));
-  placeholder.SetMargin(inkMargin(10.0, 10.0, 0.0, 0.0));
+  placeholder.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   content.AddChildWidget(placeholder);
 }
 
@@ -361,9 +366,9 @@ private func ModMenu_RefreshModList() -> Void {
     noMods.SetText("No mods registered");
     noMods.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
     noMods.SetFontStyle(n"Medium");
-    noMods.SetFontSize(16);
+    noMods.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
     noMods.SetTintColor(Color(120, 120, 120, 255));
-    noMods.SetMargin(inkMargin(15.0, 10.0, 0.0, 0.0));
+    noMods.SetMargin(inkMargin(ModMenu_U(15.0), ModMenu_U(10.0), ModMenu_U(0.0), ModMenu_U(0.0)));
     this.modmenuModListContent.AddChildWidget(noMods);
     return;
   }
@@ -381,10 +386,10 @@ private func ModMenu_RefreshModList() -> Void {
     btn.SetText(modName);
     btn.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
     btn.SetFontStyle(n"Medium");
-    btn.SetFontSize(16);
+    btn.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
     btn.SetTintColor(Color(180, 180, 180, 255));
-    btn.SetSize(240.0, 35.0);
-    btn.SetMargin(inkMargin(10.0, 5.0, 10.0, 5.0));
+    btn.SetSize(ModMenu_U(240.0), ModMenu_U(35.0));
+    btn.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(5.0), ModMenu_U(10.0), ModMenu_U(5.0)));
     this.ModMenu_Clickable(btn, n"OnModMenu_ModSelected");
 
     this.modmenuModListContent.AddChildWidget(btn);
@@ -478,9 +483,9 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     noSettings.SetText("This mod has no configurable settings");
     noSettings.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
     noSettings.SetFontStyle(n"Medium");
-    noSettings.SetFontSize(16);
+    noSettings.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
     noSettings.SetTintColor(Color(150, 150, 150, 255));
-    noSettings.SetMargin(inkMargin(20.0, 20.0, 0.0, 0.0));
+    noSettings.SetMargin(inkMargin(ModMenu_U(20.0), ModMenu_U(20.0), ModMenu_U(0.0), ModMenu_U(0.0)));
     this.modmenuSettingsContent.AddChildWidget(noSettings);
     return;
   }
@@ -499,10 +504,10 @@ private func ModMenu_LoadModSettings(modId: String) -> Void {
     tab.SetText(pageTitle);
     tab.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
     tab.SetFontStyle(n"Medium");
-    tab.SetFontSize(14);
+    tab.SetFontSize(Cast<Int32>(ModMenu_U(14.0)));
     tab.SetTintColor(Color(180, 180, 180, 255));
-    tab.SetSize(120.0, 30.0);
-    tab.SetMargin(inkMargin(5.0, 5.0, 5.0, 5.0));
+    tab.SetSize(ModMenu_U(120.0), ModMenu_U(30.0));
+    tab.SetMargin(inkMargin(ModMenu_U(5.0), ModMenu_U(5.0), ModMenu_U(5.0), ModMenu_U(5.0)));
     this.ModMenu_Clickable(tab, n"OnModMenu_PageSelected");
     this.modmenuPageSelector.AddChildWidget(tab);
 
@@ -584,14 +589,14 @@ private func ModMenu_LoadPageEntries(modId: String, pageId: String) -> Void {
 @addMethod(inkGameController)
 private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String, title: String) -> Void {
   let row = new inkCanvas();
-  row.SetSize(800.0, 40.0);
-  row.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
+  row.SetSize(ModMenu_U(800.0), ModMenu_U(40.0));
+  row.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(5.0)));
 
   let label = new inkText();
   label.SetText(title);
   label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   label.SetFontStyle(n"Medium");
-  label.SetFontSize(16);
+  label.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
   label.SetTintColor(Color(220, 220, 220, 255));
   row.AddChildWidget(label);
 
@@ -602,8 +607,8 @@ private func ModMenu_CreateToggle(modId: String, pageId: String, entryId: String
   toggle.SetText(value ? "ON" : "OFF");
   toggle.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   toggle.SetFontStyle(n"Medium");
-  toggle.SetFontSize(16);
-  toggle.SetMargin(inkMargin(600.0, 0.0, 0.0, 0.0));
+  toggle.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
+  toggle.SetMargin(inkMargin(ModMenu_U(600.0), ModMenu_U(0.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   toggle.SetTintColor(value ? Color(0, 200, 80, 255) : Color(200, 60, 60, 255));
   this.ModMenu_Clickable(toggle, n"OnModMenu_TogglePressed");
   row.AddChildWidget(toggle);
@@ -637,17 +642,17 @@ public func ModMenu_FlipToggle(entryId: String) -> Void {
 @addMethod(inkGameController)
 private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String, title: String) -> Void {
   let container = new inkVerticalPanel();
-  container.SetSize(800.0, 55.0);
-  container.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
+  container.SetSize(ModMenu_U(800.0), ModMenu_U(55.0));
+  container.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(5.0)));
 
   let labelRow = new inkHorizontalPanel();
-  labelRow.SetSize(800.0, 25.0);
+  labelRow.SetSize(ModMenu_U(800.0), ModMenu_U(25.0));
 
   let label = new inkText();
   label.SetText(title);
   label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   label.SetFontStyle(n"Medium");
-  label.SetFontSize(16);
+  label.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
   label.SetTintColor(Color(220, 220, 220, 255));
   labelRow.AddChildWidget(label);
 
@@ -657,31 +662,31 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   valText.SetText(FloatToString(value));
   valText.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   valText.SetFontStyle(n"Medium");
-  valText.SetFontSize(14);
+  valText.SetFontSize(Cast<Int32>(ModMenu_U(14.0)));
   valText.SetTintColor(Color(180, 180, 180, 255));
-  valText.SetMargin(inkMargin(20.0, 0.0, 0.0, 0.0));
+  valText.SetMargin(inkMargin(ModMenu_U(20.0), ModMenu_U(0.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   labelRow.AddChildWidget(valText);
   container.AddChildWidget(labelRow);
 
   let ctrlRow = new inkHorizontalPanel();
-  ctrlRow.SetSize(800.0, 30.0);
-  ctrlRow.SetMargin(inkMargin(0.0, 5.0, 0.0, 0.0));
+  ctrlRow.SetSize(ModMenu_U(800.0), ModMenu_U(30.0));
+  ctrlRow.SetMargin(inkMargin(ModMenu_U(0.0), ModMenu_U(5.0), ModMenu_U(0.0), ModMenu_U(0.0)));
 
   let decBtn = new inkText();
   decBtn.SetName(StringToName("sliderdec_" + entryId));
   decBtn.SetText(" - ");
   decBtn.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   decBtn.SetFontStyle(n"Medium");
-  decBtn.SetFontSize(18);
+  decBtn.SetFontSize(Cast<Int32>(ModMenu_U(18.0)));
   decBtn.SetTintColor(Color(200, 200, 200, 255));
-  decBtn.SetSize(40.0, 30.0);
+  decBtn.SetSize(ModMenu_U(40.0), ModMenu_U(30.0));
   this.ModMenu_Clickable(decBtn, n"OnModMenu_SliderDecPressed");
   ctrlRow.AddChildWidget(decBtn);
 
   let bar = new inkRectangle();
   bar.SetName(StringToName("sliderbar_" + entryId));
-  bar.SetSize(300.0, 20.0);
-  bar.SetMargin(inkMargin(10.0, 5.0, 10.0, 0.0));
+  bar.SetSize(ModMenu_U(300.0), ModMenu_U(20.0));
+  bar.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(5.0), ModMenu_U(10.0), ModMenu_U(0.0)));
   bar.SetTintColor(Color(0, 100, 200, 255));
   ctrlRow.AddChildWidget(bar);
 
@@ -690,9 +695,9 @@ private func ModMenu_CreateSlider(modId: String, pageId: String, entryId: String
   incBtn.SetText(" + ");
   incBtn.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   incBtn.SetFontStyle(n"Medium");
-  incBtn.SetFontSize(18);
+  incBtn.SetFontSize(Cast<Int32>(ModMenu_U(18.0)));
   incBtn.SetTintColor(Color(200, 200, 200, 255));
-  incBtn.SetSize(40.0, 30.0);
+  incBtn.SetSize(ModMenu_U(40.0), ModMenu_U(30.0));
   this.ModMenu_Clickable(incBtn, n"OnModMenu_SliderIncPressed");
   ctrlRow.AddChildWidget(incBtn);
 
@@ -744,14 +749,14 @@ private func ModMenu_AdjustSlider(entryId: String, delta: Float) -> Void {
 @addMethod(inkGameController)
 private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: String, title: String) -> Void {
   let row = new inkCanvas();
-  row.SetSize(800.0, 40.0);
-  row.SetMargin(inkMargin(10.0, 10.0, 10.0, 5.0));
+  row.SetSize(ModMenu_U(800.0), ModMenu_U(40.0));
+  row.SetMargin(inkMargin(ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(10.0), ModMenu_U(5.0)));
 
   let label = new inkText();
   label.SetText(title);
   label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   label.SetFontStyle(n"Medium");
-  label.SetFontSize(16);
+  label.SetFontSize(Cast<Int32>(ModMenu_U(16.0)));
   label.SetTintColor(Color(220, 220, 220, 255));
   row.AddChildWidget(label);
 
@@ -760,9 +765,9 @@ private func ModMenu_CreateActionButton(modId: String, pageId: String, entryId: 
   actionBtn.SetText("[Execute]");
   actionBtn.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   actionBtn.SetFontStyle(n"Medium");
-  actionBtn.SetFontSize(14);
+  actionBtn.SetFontSize(Cast<Int32>(ModMenu_U(14.0)));
   actionBtn.SetTintColor(Color(0, 160, 255, 255));
-  actionBtn.SetMargin(inkMargin(600.0, 0.0, 0.0, 0.0));
+  actionBtn.SetMargin(inkMargin(ModMenu_U(600.0), ModMenu_U(0.0), ModMenu_U(0.0), ModMenu_U(0.0)));
   this.ModMenu_Clickable(actionBtn, n"OnModMenu_ActionPressed");
   row.AddChildWidget(actionBtn);
 
@@ -790,9 +795,9 @@ private func ModMenu_CreateLabel(title: String) -> Void {
   label.SetText(title);
   label.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
   label.SetFontStyle(n"Medium");
-  label.SetFontSize(14);
+  label.SetFontSize(Cast<Int32>(ModMenu_U(14.0)));
   label.SetTintColor(Color(180, 180, 180, 255));
-  label.SetMargin(inkMargin(15.0, 10.0, 0.0, 5.0));
+  label.SetMargin(inkMargin(ModMenu_U(15.0), ModMenu_U(10.0), ModMenu_U(0.0), ModMenu_U(5.0)));
   this.modmenuSettingsContent.AddChildWidget(label);
 }
 
